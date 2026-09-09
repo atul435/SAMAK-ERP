@@ -32,6 +32,9 @@ __pycache__/
 # Deployment package built by scripts/build-hostinger.sh — regenerate, don't commit
 dist-hostinger.zip
 
+# Supabase CLI local link state — contains a live pooler connection string
+supabase/.temp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
