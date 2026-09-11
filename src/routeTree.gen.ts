@@ -20,6 +20,7 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
+import { Route as AuthenticatedAdminCompanyRouteImport } from './routes/_authenticated/admin.company'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin.employees'
 import { Route as AuthenticatedAdminPortalRouteImport } from './routes/_authenticated/admin.portal'
 import { Route as AuthenticatedAdminRolesRouteImport } from './routes/_authenticated/admin.roles'
@@ -109,6 +110,12 @@ const AuthenticatedAdminAuditRoute = AuthenticatedAdminAuditRouteImport.update({
   path: '/admin/audit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCompanyRoute =
+  AuthenticatedAdminCompanyRouteImport.update({
+    id: '/admin/company',
+    path: '/admin/company',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminEmployeesRoute =
   AuthenticatedAdminEmployeesRouteImport.update({
     id: '/admin/employees',
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/api/health': typeof ApiHealthRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/company': typeof AuthenticatedAdminCompanyRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/portal': typeof AuthenticatedAdminPortalRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
@@ -353,6 +361,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/api/health': typeof ApiHealthRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/admin/company': typeof AuthenticatedAdminCompanyRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/portal': typeof AuthenticatedAdminPortalRoute
   '/admin/roles': typeof AuthenticatedAdminRolesRoute
@@ -401,6 +410,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/api/health': typeof ApiHealthRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
+  '/_authenticated/admin/company': typeof AuthenticatedAdminCompanyRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/portal': typeof AuthenticatedAdminPortalRoute
   '/_authenticated/admin/roles': typeof AuthenticatedAdminRolesRoute
@@ -448,6 +458,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/api/health'
     | '/admin/audit'
+    | '/admin/company'
     | '/admin/employees'
     | '/admin/portal'
     | '/admin/roles'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/api/health'
     | '/admin/audit'
+    | '/admin/company'
     | '/admin/employees'
     | '/admin/portal'
     | '/admin/roles'
@@ -540,6 +552,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/api/health'
     | '/_authenticated/admin/audit'
+    | '/_authenticated/admin/company'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/portal'
     | '/_authenticated/admin/roles'
@@ -663,6 +676,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AuthenticatedAdminAuditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/company': {
+      id: '/_authenticated/admin/company'
+      path: '/admin/company'
+      fullPath: '/admin/company'
+      preLoaderRoute: typeof AuthenticatedAdminCompanyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/employees': {
@@ -912,6 +932,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
+  AuthenticatedAdminCompanyRoute: typeof AuthenticatedAdminCompanyRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminPortalRoute: typeof AuthenticatedAdminPortalRoute
   AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRoute
@@ -948,6 +969,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
+  AuthenticatedAdminCompanyRoute: AuthenticatedAdminCompanyRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminPortalRoute: AuthenticatedAdminPortalRoute,
   AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRoute,

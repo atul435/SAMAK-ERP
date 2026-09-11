@@ -81,6 +81,7 @@ export const NAVIGATION: NavGroup[] = [
   {
     group: "Admin",
     items: [
+      { label: "Company Settings", to: "/admin/company", module: "admin" },
       { label: "User Management", to: "/admin/users", module: "admin" },
       { label: "Employees", to: "/admin/employees", module: "admin" },
       { label: "Portal Accounts", to: "/admin/portal", module: "crm" },
