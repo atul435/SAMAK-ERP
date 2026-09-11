@@ -2631,58 +2631,202 @@ export type Database = {
       }
       plant_species: {
         Row: {
+          ai_design_tags: string[] | null
+          arid_nw_fit: number | null
           botanical_name: string
+          canopy_form: string | null
           category: string
+          climate_type: string | null
+          coastal_south_fit: number | null
           common_name: string
           created_at: string
           created_by: string | null
+          data_confidence: string | null
+          deccan_plateau_fit: number | null
+          delhi_ncr_fit: number | null
+          drought_tolerance: number | null
+          east_ne_humid_fit: number | null
+          ecological_value: string | null
+          family: string | null
+          fauna_value: string | null
+          fertilizer_requirement: string | null
+          flower_colour: string | null
+          flowering_months: string | null
+          frost_tolerance: number | null
           growth_rate: string | null
+          habit: string | null
+          heat_tolerance: number | null
+          himalayan_foothills_fit: number | null
           id: string
+          indicative_buy_price: number | null
+          indicative_sell_price: number | null
+          irrigation_hydrozone: string | null
+          landscape_uses: string[] | null
+          lifespan: string | null
+          local_name: string | null
           maintenance_level: string | null
           mature_height_m: number | null
+          mature_spread_m: number | null
           native_region: string | null
+          native_status: string | null
           notes: string | null
+          nursery_spec: string | null
+          plant_code: string | null
+          planting_season: string | null
+          pollinator_value: string | null
+          pollution_tolerance: number | null
+          pot_bag_size: string | null
+          primary_sources: string | null
+          pruning_requirement: string | null
+          recommended_spacing: string | null
+          root_risk_notes: string | null
+          salinity_tolerance: number | null
+          samak_field_rating: number | null
+          samak_preferred: string | null
+          soil_ph: string | null
           soil_type: string | null
+          standard_height_girth: string | null
+          subcategory: string | null
           sunlight: string | null
+          temperate_hills_fit: number | null
+          toxicity_notes: string | null
           updated_at: string
           updated_by: string | null
+          verification_status: string | null
           water_need: string | null
+          western_coast_fit: number | null
         }
         Insert: {
+          ai_design_tags?: string[] | null
+          arid_nw_fit?: number | null
           botanical_name: string
+          canopy_form?: string | null
           category: string
+          climate_type?: string | null
+          coastal_south_fit?: number | null
           common_name: string
           created_at?: string
           created_by?: string | null
+          data_confidence?: string | null
+          deccan_plateau_fit?: number | null
+          delhi_ncr_fit?: number | null
+          drought_tolerance?: number | null
+          east_ne_humid_fit?: number | null
+          ecological_value?: string | null
+          family?: string | null
+          fauna_value?: string | null
+          fertilizer_requirement?: string | null
+          flower_colour?: string | null
+          flowering_months?: string | null
+          frost_tolerance?: number | null
           growth_rate?: string | null
+          habit?: string | null
+          heat_tolerance?: number | null
+          himalayan_foothills_fit?: number | null
           id?: string
+          indicative_buy_price?: number | null
+          indicative_sell_price?: number | null
+          irrigation_hydrozone?: string | null
+          landscape_uses?: string[] | null
+          lifespan?: string | null
+          local_name?: string | null
           maintenance_level?: string | null
           mature_height_m?: number | null
+          mature_spread_m?: number | null
           native_region?: string | null
+          native_status?: string | null
           notes?: string | null
+          nursery_spec?: string | null
+          plant_code?: string | null
+          planting_season?: string | null
+          pollinator_value?: string | null
+          pollution_tolerance?: number | null
+          pot_bag_size?: string | null
+          primary_sources?: string | null
+          pruning_requirement?: string | null
+          recommended_spacing?: string | null
+          root_risk_notes?: string | null
+          salinity_tolerance?: number | null
+          samak_field_rating?: number | null
+          samak_preferred?: string | null
+          soil_ph?: string | null
           soil_type?: string | null
+          standard_height_girth?: string | null
+          subcategory?: string | null
           sunlight?: string | null
+          temperate_hills_fit?: number | null
+          toxicity_notes?: string | null
           updated_at?: string
           updated_by?: string | null
+          verification_status?: string | null
           water_need?: string | null
+          western_coast_fit?: number | null
         }
         Update: {
+          ai_design_tags?: string[] | null
+          arid_nw_fit?: number | null
           botanical_name?: string
+          canopy_form?: string | null
           category?: string
+          climate_type?: string | null
+          coastal_south_fit?: number | null
           common_name?: string
           created_at?: string
           created_by?: string | null
+          data_confidence?: string | null
+          deccan_plateau_fit?: number | null
+          delhi_ncr_fit?: number | null
+          drought_tolerance?: number | null
+          east_ne_humid_fit?: number | null
+          ecological_value?: string | null
+          family?: string | null
+          fauna_value?: string | null
+          fertilizer_requirement?: string | null
+          flower_colour?: string | null
+          flowering_months?: string | null
+          frost_tolerance?: number | null
           growth_rate?: string | null
+          habit?: string | null
+          heat_tolerance?: number | null
+          himalayan_foothills_fit?: number | null
           id?: string
+          indicative_buy_price?: number | null
+          indicative_sell_price?: number | null
+          irrigation_hydrozone?: string | null
+          landscape_uses?: string[] | null
+          lifespan?: string | null
+          local_name?: string | null
           maintenance_level?: string | null
           mature_height_m?: number | null
+          mature_spread_m?: number | null
           native_region?: string | null
+          native_status?: string | null
           notes?: string | null
+          nursery_spec?: string | null
+          plant_code?: string | null
+          planting_season?: string | null
+          pollinator_value?: string | null
+          pollution_tolerance?: number | null
+          pot_bag_size?: string | null
+          primary_sources?: string | null
+          pruning_requirement?: string | null
+          recommended_spacing?: string | null
+          root_risk_notes?: string | null
+          salinity_tolerance?: number | null
+          samak_field_rating?: number | null
+          samak_preferred?: string | null
+          soil_ph?: string | null
           soil_type?: string | null
+          standard_height_girth?: string | null
+          subcategory?: string | null
           sunlight?: string | null
+          temperate_hills_fit?: number | null
+          toxicity_notes?: string | null
           updated_at?: string
           updated_by?: string | null
+          verification_status?: string | null
           water_need?: string | null
+          western_coast_fit?: number | null
         }
         Relationships: []
       }
