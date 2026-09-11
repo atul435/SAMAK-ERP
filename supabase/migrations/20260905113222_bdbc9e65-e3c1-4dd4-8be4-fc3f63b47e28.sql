@@ -114,10 +114,5 @@ CREATE POLICY "portal_payments_select" ON public.payments
   FOR SELECT TO authenticated USING (
     client_id = public.my_portal_client_id() OR vendor_id = public.my_portal_vendor_id());
 
--- Demo portal accounts
-INSERT INTO public.portal_users (id, company_id, portal_type, client_id, vendor_id, full_name, email, designation)
-VALUES
- ('d1000000-0000-0000-0000-000000000001','11111111-1111-1111-1111-111111111111','client','41111111-0000-0000-0000-000000000001',NULL,'Anup Deshmukh','anup.deshmukh@godrejproperties.in','Project Head'),
- ('d1000000-0000-0000-0000-000000000002','11111111-1111-1111-1111-111111111111','client','41111111-0000-0000-0000-000000000003',NULL,'Sneha Iyer','sneha.iyer@infosys-campus.in','Facilities Manager'),
- ('d1000000-0000-0000-0000-000000000003','11111111-1111-1111-1111-111111111111','vendor',NULL,'c1000000-0000-0000-0000-000000000001','Sahyadri Nursery Desk','sales@sahyadrinursery.in','Sales Desk'),
- ('d1000000-0000-0000-0000-000000000004','11111111-1111-1111-1111-111111111111','vendor',NULL,'c1000000-0000-0000-0000-000000000004','Vishal Kadam','vishal@deccanstone.in','Proprietor');
+-- Fictional demo portal accounts removed — real client/vendor portal
+-- logins are created through Admin once real clients/vendors exist.
