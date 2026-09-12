@@ -37,6 +37,11 @@ module.exports = {
     {
       name: "environiq",
       script: ".output/server/index.mjs",
+      // Pinned to a private nvm-managed Node 22 install -- required for
+      // native WebSocket support (@supabase/realtime-js needs Node 22+),
+      // and kept separate from the VPS's system-wide /usr/bin/node (v20)
+      // so other apps on this box are never affected.
+      interpreter: "/root/.nvm/versions/node/v22.23.2/bin/node",
       cwd: __dirname,
       exec_mode: "fork",
       instances: 1,
