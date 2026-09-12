@@ -19,13 +19,7 @@ import { inr, dateTime, titleCase } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 
 type ApprovalState =
-  | "draft"
-  | "submitted"
-  | "pending_approval"
-  | "approved"
-  | "rejected"
-  | "executed"
-  | "cancelled";
+  "draft" | "submitted" | "pending_approval" | "approved" | "rejected" | "executed" | "cancelled";
 
 const STATES: ApprovalState[] = [
   "draft",
@@ -228,10 +222,12 @@ function ApprovalsPage() {
                       <span className="font-medium">{r.entity_label}</span>
                       <span className="block text-xs text-muted-foreground">
                         {r.request_code} · {dateTime(r.created_at)}
-                        {r.ai_assisted ? " · JARVIS assisted" : ""}
+                        {r.ai_assisted ? " · GrowIQ assisted" : ""}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{titleCase(r.entity_type)}</td>
+                    <td className="px-4 py-2.5 text-muted-foreground">
+                      {titleCase(r.entity_type)}
+                    </td>
                     <td className="px-4 py-2.5 text-right text-numeric">
                       {r.amount ? inr(Number(r.amount), true) : "—"}
                     </td>
@@ -262,7 +258,8 @@ function ApprovalsPage() {
               {active.summary ? <p className="text-sm">{active.summary}</p> : null}
               {active.amount ? (
                 <p className="text-sm">
-                  Value: <span className="text-numeric font-medium">{inr(Number(active.amount))}</span>
+                  Value:{" "}
+                  <span className="text-numeric font-medium">{inr(Number(active.amount))}</span>
                 </p>
               ) : null}
 

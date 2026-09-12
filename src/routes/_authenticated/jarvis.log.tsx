@@ -8,16 +8,16 @@ import { dateTime, pct } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/jarvis/log")({
   head: () => ({
     meta: [
-      { title: "AI task log — EnvironIQ JARVIS" },
+      { title: "AI task log — EnvironIQ GrowIQ" },
       {
         name: "description",
         content:
-          "Every JARVIS question, answer, confidence score and action is logged for governance and review.",
+          "Every GrowIQ question, answer, confidence score and action is logged for governance and review.",
       },
-      { property: "og:title", content: "AI task log — EnvironIQ JARVIS" },
+      { property: "og:title", content: "AI task log — EnvironIQ GrowIQ" },
       {
         property: "og:description",
-        content: "Every JARVIS question, answer and action logged for governance.",
+        content: "Every GrowIQ question, answer and action logged for governance.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -49,12 +49,12 @@ function JarvisLogPage() {
     <>
       <PageHeader
         title="AI task log"
-        description="JARVIS may analyse and recommend, but sensitive actions always require authorised human approval. Every interaction is recorded here."
+        description="GrowIQ may analyse and recommend, but sensitive actions always require authorised human approval. Every interaction is recorded here."
       />
       {rows.length === 0 ? (
         <EmptyState
-          title="No JARVIS interactions yet"
-          description="Open the JARVIS panel and ask a question about your live ERP data."
+          title="No GrowIQ interactions yet"
+          description="Open the GrowIQ panel and ask a question about your live ERP data."
         />
       ) : (
         <ul className="space-y-3">
@@ -63,8 +63,8 @@ function JarvisLogPage() {
               <p className="text-sm font-medium">{r.question}</p>
               <p className="mt-1 text-sm text-muted-foreground">{r.answer}</p>
               <p className="mt-2 text-xs text-muted-foreground">
-                Confidence {pct(Number(r.confidence ?? 0) * 100)} · {r.action_taken ?? "recommendation_only"} ·{" "}
-                {dateTime(r.created_at)}
+                Confidence {pct(Number(r.confidence ?? 0) * 100)} ·{" "}
+                {r.action_taken ?? "recommendation_only"} · {dateTime(r.created_at)}
               </p>
             </li>
           ))}

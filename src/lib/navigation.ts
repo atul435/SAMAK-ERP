@@ -17,10 +17,10 @@ export interface NavGroup {
  */
 export const NAVIGATION: NavGroup[] = [
   {
-    group: "JARVIS",
+    group: "GrowIQ",
     items: [
       { label: "Command Centre", to: "/dashboard", module: "dashboard" },
-      { label: "JARVIS", to: "/jarvis", module: "jarvis" },
+      { label: "GrowIQ", to: "/jarvis", module: "jarvis" },
       { label: "Approvals", to: "/approvals", module: "dashboard" },
       { label: "Notifications", to: "/notifications", module: "dashboard" },
       { label: "AI Task Log", to: "/jarvis/log", module: "jarvis" },

@@ -17,7 +17,7 @@ const SUGGESTIONS = [
   "Which approvals are waiting on me?",
 ];
 
-export function JarvisPanel() {
+export function GrowIQPanel() {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [history, setHistory] = useState<Array<{ q: string; a: JarvisAnswer }>>([]);
@@ -53,10 +53,10 @@ export function JarvisPanel() {
         type="button"
         onClick={() => setOpen(true)}
         className="fixed right-4 bottom-4 z-40 flex items-center gap-2 rounded-full surface-canopy px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform hover:scale-105 md:right-6 md:bottom-6"
-        aria-label="Open JARVIS assistant"
+        aria-label="Open GrowIQ assistant"
       >
         <Sparkles className="h-4 w-4" />
-        JARVIS
+        GrowIQ
       </button>
 
       {open ? (
@@ -64,7 +64,7 @@ export function JarvisPanel() {
           <aside className="flex h-full w-full max-w-lg flex-col border-l border-border bg-card shadow-2xl">
             <header className="flex items-start justify-between gap-3 border-b border-border p-4">
               <div>
-                <p className="font-display text-lg font-semibold">JARVIS</p>
+                <p className="font-display text-lg font-semibold">GrowIQ</p>
                 <p className="text-xs text-muted-foreground">
                   {employee?.full_name ?? "Signed-in user"} · {roles.join(", ") || "no role"} ·{" "}
                   {company?.name ?? "—"} · {pathname}
@@ -79,7 +79,7 @@ export function JarvisPanel() {
               {history.length === 0 && !mutation.isPending ? (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    JARVIS answers only from ERP records you are permitted to see, and never
+                    GrowIQ answers only from ERP records you are permitted to see, and never
                     executes sensitive actions on its own.
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -190,8 +190,8 @@ export function JarvisPanel() {
               <Input
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
-                placeholder="Ask JARVIS about your projects, cash, leads…"
-                aria-label="Ask JARVIS"
+                placeholder="Ask GrowIQ about your projects, cash, leads…"
+                aria-label="Ask GrowIQ"
               />
               <Button type="submit" size="icon" disabled={mutation.isPending}>
                 <Send className="h-4 w-4" />

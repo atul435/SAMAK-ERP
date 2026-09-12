@@ -42,7 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { dateTime, titleCase } from "@/lib/format";
+import { dateTime, moduleLabel, titleCase } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/admin/users")({
   head: () => ({
@@ -273,7 +273,9 @@ function UserManagementPage() {
         <TabsContent value="hierarchy">
           <div className="grid gap-3 lg:grid-cols-2">
             {ROLE_PROFILES.map((r) => {
-              const count = [...rolesByUser.values()].filter((list) => list.includes(r.role)).length;
+              const count = [...rolesByUser.values()].filter((list) =>
+                list.includes(r.role),
+              ).length;
               return (
                 <section key={r.role} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -625,7 +627,11 @@ function CreateAccountDialog({
           <Button
             onClick={() => mutation.mutate()}
             disabled={
-              mutation.isPending || !form.fullName || !form.email || !form.employeeCode || !form.password
+              mutation.isPending ||
+              !form.fullName ||
+              !form.email ||
+              !form.employeeCode ||
+              !form.password
             }
           >
             {mutation.isPending ? "Creating…" : "Create account"}
@@ -652,22 +658,16 @@ function AccessMatrix({ canEdit }: { canEdit: boolean }) {
   const query = useQuery({
     queryKey: ["role-permissions-matrix"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("role_permissions").select("id, role, module, action");
+      const { data, error } = await supabase
+        .from("role_permissions")
+        .select("id, role, module, action");
       if (error) throw error;
       return data;
     },
   });
 
   const toggle = useMutation({
-    mutationFn: async ({
-      module,
-      action,
-      on,
-    }: {
-      module: string;
-      action: string;
-      on: boolean;
-    }) => {
+    mutationFn: async ({ module, action, on }: { module: string; action: string; on: boolean }) => {
       if (on) {
         const { error } = await supabase
           .from("role_permissions")
@@ -730,7 +730,7 @@ function AccessMatrix({ canEdit }: { canEdit: boolean }) {
           <tbody>
             {PERMISSION_MODULES.map((m) => (
               <tr key={m} className="border-b border-border last:border-0">
-                <td className="px-3 py-2 font-medium">{titleCase(m)}</td>
+                <td className="px-3 py-2 font-medium">{moduleLabel(m)}</td>
                 {PERMISSION_ACTIONS.map((a) => (
                   <td key={a} className="px-2 py-2 text-center">
                     <Checkbox

@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/jarvis/")({
   head: () => ({
     meta: [
-      { title: "JARVIS intelligence — EnvironIQ" },
+      { title: "GrowIQ intelligence — EnvironIQ" },
       {
         name: "description",
         content:
-          "Ask JARVIS about live projects, cash, procurement and site progress. Answers are grounded in your own ERP records and never execute sensitive actions.",
+          "Ask GrowIQ about live projects, cash, procurement and site progress. Answers are grounded in your own ERP records and never execute sensitive actions.",
       },
-      { property: "og:title", content: "JARVIS intelligence — EnvironIQ" },
+      { property: "og:title", content: "GrowIQ intelligence — EnvironIQ" },
       {
         property: "og:description",
         content: "Role-aware answers and a daily executive briefing grounded in live ERP records.",
@@ -58,7 +58,9 @@ function BriefingList({ title, items }: { title: string; items: JarvisBriefingIt
   if (!items.length) return null;
   return (
     <section className="space-y-2">
-      <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{title}</h2>
+      <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+        {title}
+      </h2>
       <ul className="space-y-2">
         {items.map((item, i) => (
           <li key={i} className={cn("rounded-xl border p-3", SEVERITY_CLASS[item.severity])}>
@@ -110,10 +112,7 @@ function DecisionCard({ decision }: { decision: JarvisDecision }) {
         <span className="flex-1" />
         {decision.links.map((link) => (
           <Button key={link.label} asChild size="sm" variant="outline">
-            <Link
-              to={link.to as never}
-              {...(link.params ? { params: link.params as never } : {})}
-            >
+            <Link to={link.to as never} {...(link.params ? { params: link.params as never } : {})}>
               {link.label}
               <ArrowRight className="ml-1 h-3.5 w-3.5" />
             </Link>
@@ -161,8 +160,8 @@ function JarvisPage() {
   return (
     <>
       <PageHeader
-        title="JARVIS intelligence"
-        description="Every answer is drawn from ERP records you are permitted to see. JARVIS analyses and recommends; sensitive actions always need authorised human approval."
+        title="GrowIQ intelligence"
+        description="Every answer is drawn from ERP records you are permitted to see. GrowIQ analyses and recommends; sensitive actions always need authorised human approval."
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
@@ -178,7 +177,7 @@ function JarvisPage() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Ask about projects, cash, procurement, site progress…"
-              aria-label="Ask JARVIS"
+              aria-label="Ask GrowIQ"
             />
             <Button type="submit" size="icon" disabled={chat.isPending} aria-label="Send">
               <Send className="h-4 w-4" />
@@ -201,7 +200,7 @@ function JarvisPage() {
           <section className="space-y-3">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                Decisions JARVIS suggests
+                Decisions GrowIQ suggests
               </h2>
               <Button
                 size="sm"
@@ -209,7 +208,9 @@ function JarvisPage() {
                 onClick={() => decisions.refetch()}
                 disabled={decisions.isFetching}
               >
-                <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", decisions.isFetching && "animate-spin")} />
+                <RefreshCw
+                  className={cn("mr-1.5 h-3.5 w-3.5", decisions.isFetching && "animate-spin")}
+                />
                 Refresh
               </Button>
             </div>
@@ -265,7 +266,7 @@ function JarvisPage() {
 
           {history.length === 0 && !chat.isPending ? (
             <div className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-              Ask a question, or generate today's briefing on the right. JARVIS reads live projects,
+              Ask a question, or generate today's briefing on the right. GrowIQ reads live projects,
               estimates, site diaries, purchase orders, stock, invoices, receipts and payroll — and
               cites the record codes behind every statement.
             </div>
@@ -352,7 +353,9 @@ function JarvisPage() {
                 onClick={() => briefing.mutate()}
                 disabled={briefing.isPending}
               >
-                <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", briefing.isPending && "animate-spin")} />
+                <RefreshCw
+                  className={cn("mr-1.5 h-3.5 w-3.5", briefing.isPending && "animate-spin")}
+                />
                 {briefing.data ? "Refresh" : "Generate"}
               </Button>
             </div>

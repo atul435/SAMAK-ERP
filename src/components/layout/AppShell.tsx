@@ -5,7 +5,7 @@ import { NAVIGATION } from "@/lib/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
-import { JarvisPanel } from "@/components/jarvis/JarvisPanel";
+import { GrowIQPanel } from "@/components/growiq/GrowIQPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { titleCase } from "@/lib/format";
@@ -175,7 +175,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
-      <JarvisPanel />
+      <GrowIQPanel />
     </div>
   );
 }

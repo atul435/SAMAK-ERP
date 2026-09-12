@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/common/PageHeader";
 import { ErrorState, LoadingState } from "@/components/common/EmptyState";
-import { titleCase } from "@/lib/format";
+import { moduleLabel, titleCase } from "@/lib/format";
 import { useAuth } from "@/lib/auth-context";
 
 export const Route = createFileRoute("/_authenticated/admin/roles")({
@@ -13,12 +13,12 @@ export const Route = createFileRoute("/_authenticated/admin/roles")({
       {
         name: "description",
         content:
-          "Role-based access matrix governing every ERP module — and the same model JARVIS operates under.",
+          "Role-based access matrix governing every ERP module — and the same model GrowIQ operates under.",
       },
       { property: "og:title", content: "Roles & permissions — EnvironIQ admin" },
       {
         property: "og:description",
-        content: "The role-based access matrix that also governs the JARVIS intelligence layer.",
+        content: "The role-based access matrix that also governs the GrowIQ intelligence layer.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,7 +55,7 @@ function RolesPage() {
     <>
       <PageHeader
         title="Roles & permissions"
-        description="Access is granted by role and scoped to your company and projects. JARVIS reads under exactly the same rules and can never bypass them."
+        description="Access is granted by role and scoped to your company and projects. GrowIQ reads under exactly the same rules and can never bypass them."
       />
       <div className="grid gap-4 lg:grid-cols-2">
         {[...grouped.entries()].map(([role, modules]) => (
@@ -77,7 +77,7 @@ function RolesPage() {
             <ul className="mt-3 space-y-1.5">
               {[...modules.entries()].map(([mod, actions]) => (
                 <li key={mod} className="flex items-start justify-between gap-3 text-sm">
-                  <span className="text-muted-foreground">{titleCase(mod)}</span>
+                  <span className="text-muted-foreground">{moduleLabel(mod)}</span>
                   <span className="text-right text-xs">
                     {[...new Set(actions)].map((a) => titleCase(a)).join(" · ")}
                   </span>

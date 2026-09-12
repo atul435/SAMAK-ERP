@@ -40,3 +40,13 @@ export function titleCase(value: string | null | undefined): string {
     .replace(/_/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+/**
+ * Display label for a permission module key. The "jarvis" module (the
+ * permission key stored in role_permissions, unchanged for compatibility)
+ * is branded "GrowIQ" everywhere a person actually sees it.
+ */
+export function moduleLabel(module: string | null | undefined): string {
+  if (module === "jarvis") return "GrowIQ";
+  return titleCase(module);
+}

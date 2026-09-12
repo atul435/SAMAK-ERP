@@ -50,8 +50,12 @@ function toItems(value: unknown): JarvisBriefingItem[] {
       title: String(item["title"] ?? "Untitled"),
       detail: String(item["detail"] ?? ""),
       severity: (SEVERITIES.has(severity) ? severity : "medium") as JarvisBriefingItem["severity"],
-      sources: Array.isArray(item["sources"]) ? (item["sources"] as unknown[]).map(String).slice(0, 6) : [],
-      ...(typeof item["link"] === "string" && item["link"].startsWith("/") ? { link: item["link"] } : {}),
+      sources: Array.isArray(item["sources"])
+        ? (item["sources"] as unknown[]).map(String).slice(0, 6)
+        : [],
+      ...(typeof item["link"] === "string" && item["link"].startsWith("/")
+        ? { link: item["link"] }
+        : {}),
     };
   });
 }
@@ -146,7 +150,9 @@ Every item must be grounded in a real record from the snapshot. If a section has
 
     const briefing: JarvisBriefing = {
       headline:
-        typeof parsed["headline"] === "string" ? parsed["headline"] : "No briefing could be produced.",
+        typeof parsed["headline"] === "string"
+          ? parsed["headline"]
+          : "No briefing could be produced.",
       priorities: toItems(parsed["priorities"]),
       risks: toItems(parsed["risks"]),
       opportunities: toItems(parsed["opportunities"]),
@@ -165,7 +171,6 @@ Every item must be grounded in a real record from the snapshot. If a section has
 
     return briefing;
   });
-
 
 /**
  * Decision suggestions: overdue collections and late deliveries, computed
@@ -212,14 +217,17 @@ Respond as strict JSON: { "suggestions": [ { "id": "<card id verbatim>", "sugges
       }
     } catch (error) {
       // Wording help is optional — the grounded card stands on its own.
-      console.error("JARVIS decision rewrite failed", error);
+      console.error("GrowIQ decision rewrite failed", error);
     }
 
     await supabase.from("ai_interactions").insert({
       company_id: snapshot.companyId,
       user_id: context.userId,
       question: "Decision suggestions",
-      answer: decisions.map((d) => d.title).join(" | ").slice(0, 2000),
+      answer: decisions
+        .map((d) => d.title)
+        .join(" | ")
+        .slice(0, 2000),
       context: { page: "/jarvis", kind: "decisions", ids: decisions.map((d) => d.id) },
       confidence: 0.9,
       action_taken: "recommendation_only",

@@ -29,7 +29,10 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
     clients,
     vendors,
   ] = await Promise.all([
-    supabase.from("employees").select("full_name, designation, primary_role, company_id").maybeSingle(),
+    supabase
+      .from("employees")
+      .select("full_name, designation, primary_role, company_id")
+      .maybeSingle(),
     supabase
       .from("projects")
       .select(
@@ -73,7 +76,9 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
       .limit(60),
     supabase
       .from("expenses")
-      .select("expense_code, title, category, expense_date, amount, tax_amount, status, approval_state, project_id")
+      .select(
+        "expense_code, title, category, expense_date, amount, tax_amount, status, approval_state, project_id",
+      )
       .order("expense_date", { ascending: false })
       .limit(40),
     supabase
@@ -86,12 +91,16 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
       .limit(40),
     supabase
       .from("stock_movements")
-      .select("movement_type, description, quantity, uom, unit_rate, moved_at, project_id, store_id")
+      .select(
+        "movement_type, description, quantity, uom, unit_rate, moved_at, project_id, store_id",
+      )
       .order("moved_at", { ascending: false })
       .limit(60),
     supabase
       .from("site_reports")
-      .select("report_date, weather, progress_percent, work_done, blockers, approval_state, project_id")
+      .select(
+        "report_date, weather, progress_percent, work_done, blockers, approval_state, project_id",
+      )
       .order("report_date", { ascending: false })
       .limit(25),
     supabase
@@ -128,7 +137,10 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
 
   // --- Receivables: bill value net of retention and advance, less receipts ---
   const invoiceRows = (invoices.data ?? []).map((inv) => {
-    const items = (inv.invoice_items ?? []) as Array<{ quantity: number | null; unit_rate: number | null }>;
+    const items = (inv.invoice_items ?? []) as Array<{
+      quantity: number | null;
+      unit_rate: number | null;
+    }>;
     const basic = items.reduce((s, i) => s + Number(i.quantity ?? 0) * Number(i.unit_rate ?? 0), 0);
     const tax = (basic * Number(inv.tax_percent ?? 0)) / 100;
     const retention = (basic * Number(inv.retention_percent ?? 0)) / 100;
@@ -175,7 +187,10 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
       unit_rate: number | null;
       received_quantity: number | null;
     }>;
-    const orderedValue = items.reduce((s, i) => s + Number(i.quantity ?? 0) * Number(i.unit_rate ?? 0), 0);
+    const orderedValue = items.reduce(
+      (s, i) => s + Number(i.quantity ?? 0) * Number(i.unit_rate ?? 0),
+      0,
+    );
     const receivedValue = items.reduce(
       (s, i) => s + Number(i.received_quantity ?? 0) * Number(i.unit_rate ?? 0),
       0,
@@ -215,8 +230,7 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
   const lateDeliveries = poRows
     .filter(
       (po) =>
-        po.days_late > 0 &&
-        (po.approval_state === "approved" || po.approval_state === "executed"),
+        po.days_late > 0 && (po.approval_state === "approved" || po.approval_state === "executed"),
     )
     .sort((a, b) => b.days_late - a.days_late);
 
@@ -246,7 +260,6 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
     committed_unreceived_on_orders: Math.round(poRows.reduce((s, p) => s + p.pending_value, 0)),
   };
 
-
   const decisions = buildDecisions(overdueCollections, lateDeliveries);
 
   return {
@@ -274,10 +287,9 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
     pendingLeave: leave.data ?? [],
     companyId: employee.data?.company_id ?? null,
   };
-
 }
 
-export const JARVIS_RULES = `You are JARVIS, the intelligence layer of EnvironIQ — the ERP operating system of Samak Landscape (India, ₹ amounts, Indian business context).
+export const JARVIS_RULES = `You are GrowIQ, the intelligence layer of EnvironIQ — the ERP operating system of Samak Landscape (India, ₹ amounts, Indian business context).
 
 STRICT RULES:
 - Use ONLY the JSON ERP snapshot supplied in the user message. Never invent projects, clients, amounts, dates or names.
@@ -288,33 +300,50 @@ STRICT RULES:
 - The "decisions" block holds pre-computed, pre-linked decision suggestions (overdue collections and late deliveries). When a question touches money owed or late supply, reference those exactly, by their titles, amounts and record codes.
 - For money questions use the pre-computed blocks: cashPosition (receipts, payouts, expenses, outstanding, overdue), overdueCollections (bills past due with days_overdue and balance_due) and lateDeliveries (approved orders past expected_date with pending_value and days_late). Quote those figures exactly; never re-derive or estimate them.`;
 
+/**
+ * GrowIQ calls Anthropic's Claude API directly — Samak's own AI assistant,
+ * not routed through any third-party platform's gateway. JSON is coaxed out
+ * reliably by prefilling the assistant turn with "{", a standard Claude
+ * technique: the model's reply continues from that character, so
+ * concatenating it back on is always valid JSON as long as the model
+ * complies with the system prompt's format instructions.
+ */
 export async function callGateway(system: string, user: string) {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("The intelligence service is not configured yet.");
+  const apiKey = process.env["ANTHROPIC_API_KEY"];
+  if (!apiKey) throw new Error("GrowIQ is not configured yet — missing ANTHROPIC_API_KEY.");
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "claude-sonnet-5",
+      max_tokens: 1536,
+      system,
       messages: [
-        { role: "system", content: system },
         { role: "user", content: user },
+        { role: "assistant", content: "{" },
       ],
-      response_format: { type: "json_object" },
     }),
   });
 
   if (!response.ok) {
     const body = await response.text();
-    console.error(`JARVIS gateway error [${response.status}]: ${body}`);
-    if (response.status === 429) throw new Error("JARVIS is rate limited right now. Please try again shortly.");
-    if (response.status === 402) throw new Error("The AI workspace is out of credits. Top up to continue.");
-    throw new Error(`JARVIS could not complete the analysis (${response.status}).`);
+    console.error(`GrowIQ (Anthropic) error [${response.status}]: ${body}`);
+    if (response.status === 429)
+      throw new Error("GrowIQ is rate limited right now. Please try again shortly.");
+    if (response.status === 401) throw new Error("GrowIQ's API key is invalid or missing.");
+    throw new Error(`GrowIQ could not complete the analysis (${response.status}).`);
   }
 
-  const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
-  const raw = payload.choices?.[0]?.message?.content ?? "{}";
+  const payload = (await response.json()) as {
+    content?: Array<{ type: string; text?: string }>;
+  };
+  const text = payload.content?.find((block) => block.type === "text")?.text ?? "";
+  const raw = "{" + text;
   try {
     return JSON.parse(raw) as Record<string, unknown>;
   } catch {

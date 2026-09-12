@@ -14,12 +14,12 @@ export const Route = createFileRoute("/auth")({
       {
         name: "description",
         content:
-          "Secure sign-in to EnvironIQ, the AI-first landscape ERP and JARVIS intelligence platform for Samak Landscape.",
+          "Secure sign-in to EnvironIQ, the AI-first landscape ERP and GrowIQ intelligence platform for Samak Landscape.",
       },
       { property: "og:title", content: "Sign in — EnvironIQ" },
       {
         property: "og:description",
-        content: "Secure sign-in to the EnvironIQ landscape ERP and JARVIS intelligence platform.",
+        content: "Secure sign-in to the EnvironIQ landscape ERP and GrowIQ intelligence platform.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -83,7 +83,7 @@ function AuthPage() {
           </h1>
           <p className="text-primary-foreground/80">
             Projects, horticulture, procurement, finance and field operations in a single system of
-            record — with JARVIS as the intelligence layer reading only what you are permitted to
+            record — with GrowIQ as the intelligence layer reading only what you are permitted to
             see.
           </p>
         </div>
@@ -99,7 +99,8 @@ function AuthPage() {
               {mode === "signin" ? "Sign in" : "Create your account"}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Staff, clients and supply partners sign in here — you land in the right workspace automatically.
+              Staff, clients and supply partners sign in here — you land in the right workspace
+              automatically.
             </p>
           </div>
 
