@@ -302,11 +302,10 @@ STRICT RULES:
 
 /**
  * GrowIQ calls Anthropic's Claude API directly — Samak's own AI assistant,
- * not routed through any third-party platform's gateway. JSON is coaxed out
- * reliably by prefilling the assistant turn with "{", a standard Claude
- * technique: the model's reply continues from that character, so
- * concatenating it back on is always valid JSON as long as the model
- * complies with the system prompt's format instructions.
+ * not routed through any third-party platform's gateway. claude-sonnet-5
+ * rejects assistant-turn prefill ("must end with a user message"), so JSON
+ * is enforced purely through the system prompt's format instructions and
+ * recovered defensively (stripping any ```json fences the model adds).
  */
 export async function callGateway(system: string, user: string) {
   const apiKey = process.env["ANTHROPIC_API_KEY"];
@@ -323,10 +322,7 @@ export async function callGateway(system: string, user: string) {
       model: "claude-sonnet-5",
       max_tokens: 1536,
       system,
-      messages: [
-        { role: "user", content: user },
-        { role: "assistant", content: "{" },
-      ],
+      messages: [{ role: "user", content: user }],
     }),
   });
 
@@ -343,10 +339,13 @@ export async function callGateway(system: string, user: string) {
     content?: Array<{ type: string; text?: string }>;
   };
   const text = payload.content?.find((block) => block.type === "text")?.text ?? "";
-  const raw = "{" + text;
+  const raw = text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
   try {
     return JSON.parse(raw) as Record<string, unknown>;
   } catch {
-    return { answer: raw } as Record<string, unknown>;
+    return { answer: raw || text } as Record<string, unknown>;
   }
 }
