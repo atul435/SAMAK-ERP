@@ -67,38 +67,43 @@ export const createStaffAccount = createServerFn({ method: "POST" })
     if (!companyId) throw new Error("Your own employee record has no company.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = data.email.trim().toLowerCase();
+
+    // The employee record must exist (with user_id still null) *before* the
+    // login is created. handle_new_user() on auth.users looks for an
+    // unlinked employee row matching the new email and links it there; if
+    // none exists yet, it instead runs its own-company bootstrap path
+    // (meant for first-time self-signup) and stamps the account as MD,
+    // colliding with the row this function then tries to insert.
+    const employee = await supabaseAdmin
+      .from("employees")
+      .insert({
+        company_id: companyId,
+        employee_code: data.employeeCode,
+        full_name: data.fullName,
+        email,
+        phone: data.phone ?? null,
+        designation: data.designation ?? null,
+        primary_role: data.role as never,
+        department_id: data.departmentId ?? null,
+        is_active: true,
+      })
+      .select("id")
+      .single();
+    if (employee.error) throw employee.error;
+
     const created = await supabaseAdmin.auth.admin.createUser({
-      email: data.email.trim().toLowerCase(),
+      email,
       password: data.password,
       email_confirm: true,
       user_metadata: { full_name: data.fullName },
     });
-    if (created.error) throw created.error;
-    const userId = created.data.user.id;
-
-    const employee = await supabaseAdmin.from("employees").insert({
-      company_id: companyId,
-      user_id: userId,
-      employee_code: data.employeeCode,
-      full_name: data.fullName,
-      email: data.email.trim().toLowerCase(),
-      phone: data.phone ?? null,
-      designation: data.designation ?? null,
-      primary_role: data.role as never,
-      department_id: data.departmentId ?? null,
-      is_active: true,
-    });
-    if (employee.error) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      throw employee.error;
+    if (created.error) {
+      await supabaseAdmin.from("employees").delete().eq("id", employee.data.id);
+      throw created.error;
     }
 
-    const roleGrant = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: userId, role: data.role as never, company_id: companyId });
-    if (roleGrant.error) throw roleGrant.error;
-
-    return { userId };
+    return { userId: created.data.user.id };
   });
 
 /** Sets a new password for an existing login. */
