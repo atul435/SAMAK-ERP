@@ -206,10 +206,7 @@ function BoqRegister() {
   if (query.isError) return <ErrorState message={(query.error as Error).message} />;
 
   const all = query.data ?? [];
-  const pipelineValue = all.reduce(
-    (sum, b) => sum + computeTotals(b.boq_items ?? [], b).grand,
-    0,
-  );
+  const pipelineValue = all.reduce((sum, b) => sum + computeTotals(b.boq_items ?? [], b).grand, 0);
   const approvedValue = all
     .filter((b) => b.approval_state === "approved")
     .reduce((sum, b) => sum + computeTotals(b.boq_items ?? [], b).grand, 0);
@@ -355,8 +352,8 @@ function NewBoqDialog({
       <DialogHeader>
         <DialogTitle>New bill of quantities</DialogTitle>
         <DialogDescription>
-          Price a design's plant schedule, or start a direct quotation for a client with no
-          design — either way it prices against the plant and material database.
+          Price a design's plant schedule, or start a direct quotation for a client with no design —
+          either way it prices against the plant and material database.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4">
@@ -400,9 +397,11 @@ function NewBoqDialog({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label>Client</Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId} onValueChange={setClientId} disabled={clients.length === 0}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select client" />
+                  <SelectValue
+                    placeholder={clients.length === 0 ? "No clients yet" : "Select client"}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -412,6 +411,11 @@ function NewBoqDialog({
                   ))}
                 </SelectContent>
               </Select>
+              {clients.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Add a client under CRM → Clients first, then come back here.
+                </p>
+              ) : null}
             </div>
             <div className="grid gap-2">
               <Label>Project (optional)</Label>

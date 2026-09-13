@@ -31,7 +31,13 @@ import {
 import { shortDate, titleCase } from "@/lib/format";
 
 export const STAGES = ["concept", "schematic", "detailed", "tender", "as_built"] as const;
-export const DESIGN_TYPES = ["softscape", "hardscape", "irrigation", "lighting", "combined"] as const;
+export const DESIGN_TYPES = [
+  "softscape",
+  "hardscape",
+  "irrigation",
+  "lighting",
+  "combined",
+] as const;
 
 export const Route = createFileRoute("/_authenticated/design/")({
   head: () => ({
@@ -230,8 +236,7 @@ function DesignStudio() {
                 <div className="min-w-0">
                   <p className="font-display text-base font-semibold">{d.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {d.design_code} · Rev {d.current_revision} ·{" "}
-                    {titleCase(d.design_type ?? "")}
+                    {d.design_code} · Rev {d.current_revision} · {titleCase(d.design_type ?? "")}
                     {d.scale ? ` · ${d.scale}` : ""}
                   </p>
                 </div>
@@ -310,9 +315,11 @@ function NewDesignDialog({
         </div>
         <div className="grid gap-2">
           <Label>Project</Label>
-          <Select value={projectId} onValueChange={setProjectId}>
+          <Select value={projectId} onValueChange={setProjectId} disabled={projects.length === 0}>
             <SelectTrigger>
-              <SelectValue placeholder="Select project" />
+              <SelectValue
+                placeholder={projects.length === 0 ? "No projects yet" : "Select project"}
+              />
             </SelectTrigger>
             <SelectContent>
               {projects.map((p) => (
@@ -322,6 +329,11 @@ function NewDesignDialog({
               ))}
             </SelectContent>
           </Select>
+          {projects.length === 0 ? (
+            <p className="text-xs text-muted-foreground">
+              Add a project under Projects first, then come back here.
+            </p>
+          ) : null}
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="grid gap-2">
@@ -378,7 +390,9 @@ function NewDesignDialog({
       <DialogFooter>
         <Button
           disabled={pending || !title.trim() || !projectId}
-          onClick={() => onSubmit({ title: title.trim(), projectId, designType, stage, scale, brief })}
+          onClick={() =>
+            onSubmit({ title: title.trim(), projectId, designType, stage, scale, brief })
+          }
         >
           {pending ? "Creating…" : "Create design"}
         </Button>
