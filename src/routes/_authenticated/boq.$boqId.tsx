@@ -50,6 +50,12 @@ import {
   lineAmount,
   type ExecutionRow,
 } from "@/lib/boq";
+import {
+  calculateInstallationCost,
+  type CostRates,
+  type ProductivityActivity,
+  type VehicleRate,
+} from "@/lib/installation-cost";
 
 export const Route = createFileRoute("/_authenticated/boq/$boqId")({
   head: () => ({
@@ -82,41 +88,52 @@ function BoqDetail() {
   const query = useQuery({
     queryKey: ["boq", boqId],
     queryFn: async () => {
-      const [boq, sections, items, species, materials, execution] = await Promise.all([
-        supabase
-          .from("boqs")
-          .select(
-            "id, boq_code, title, version, notes, status, approval_state, overhead_percent, profit_percent, contingency_percent, tax_percent, updated_at, project_id, design_id, projects(id, name, project_code, contract_value, budget_cost), designs(id, design_code, title, stage), clients(name), employees:prepared_by(full_name)",
-          )
-          .eq("id", boqId)
-          .single(),
-        supabase
-          .from("boq_sections")
-          .select("id, name, sort_order")
-          .eq("boq_id", boqId)
-          .order("sort_order"),
-        supabase
-          .from("boq_items")
-          .select(
-            "id, section_id, item_kind, description, specification, uom, quantity, wastage_percent, unit_rate, gst_percent, remarks, sort_order",
-          )
-          .eq("boq_id", boqId)
-          .order("sort_order"),
-        supabase
-          .from("plant_species")
-          .select(
-            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code, nursery_spec, planting_method, design_coverage_per_plant_m2, plants_per_m2, plants_per_rm, default_wastage_percent",
-          )
-          .order("common_name"),
-        supabase
-          .from("materials")
-          .select("id, name, uom, standard_rate, gst_percent, hsn_code")
-          .order("name"),
-        supabase
-          .from("boq_item_execution")
-          .select("boq_item_id, quantity_done, executed_amount, percent_done, last_reported_on")
-          .eq("boq_id", boqId),
-      ]);
+      const [boq, sections, items, species, materials, execution, activities, vehicles, rates] =
+        await Promise.all([
+          supabase
+            .from("boqs")
+            .select(
+              "id, boq_code, title, version, notes, status, approval_state, overhead_percent, profit_percent, contingency_percent, tax_percent, updated_at, project_id, design_id, projects(id, name, project_code, contract_value, budget_cost), designs(id, design_code, title, stage), clients(name), employees:prepared_by(full_name)",
+            )
+            .eq("id", boqId)
+            .single(),
+          supabase
+            .from("boq_sections")
+            .select("id, name, sort_order")
+            .eq("boq_id", boqId)
+            .order("sort_order"),
+          supabase
+            .from("boq_items")
+            .select(
+              "id, section_id, item_kind, description, specification, uom, quantity, wastage_percent, unit_rate, gst_percent, remarks, sort_order",
+            )
+            .eq("boq_id", boqId)
+            .order("sort_order"),
+          supabase
+            .from("plant_species")
+            .select(
+              "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code, nursery_spec, planting_method, design_coverage_per_plant_m2, plants_per_m2, plants_per_rm, default_wastage_percent",
+            )
+            .order("common_name"),
+          supabase
+            .from("materials")
+            .select("id, name, uom, standard_rate, gst_percent, hsn_code")
+            .order("name"),
+          supabase
+            .from("boq_item_execution")
+            .select("boq_item_id, quantity_done, executed_amount, percent_done, last_reported_on")
+            .eq("boq_id", boqId),
+          supabase
+            .from("labour_productivity_norms")
+            .select(
+              "activity_code, work_type, size_spec, uom, typical_weight_kg, direct_mh_per_unit, supervisor_mh_per_unit, machine_type, machine_hr_per_unit, suggested_vehicle",
+            )
+            .order("work_type"),
+          supabase
+            .from("vehicle_rates")
+            .select("vehicle, payload_kg, base_rate_per_trip, rate_per_km, minimum_rate"),
+          supabase.from("cost_input_rates").select("key, value"),
+        ]);
       if (boq.error) throw boq.error;
       if (sections.error) throw sections.error;
       if (items.error) throw items.error;
@@ -127,6 +144,9 @@ function BoqDetail() {
         species: species.data ?? [],
         materials: materials.data ?? [],
         execution: (execution.data ?? []) as ExecutionRow[],
+        activities: activities.data ?? [],
+        vehicles: vehicles.data ?? [],
+        rates: Object.fromEntries((rates.data ?? []).map((r) => [r.key, Number(r.value)])),
       };
     },
   });
@@ -289,7 +309,8 @@ function BoqDetail() {
   if (query.isError) return <ErrorState message={(query.error as Error).message} />;
   if (!query.data) return <ErrorState message="This BOQ could not be found." />;
 
-  const { boq, items, sections, species, materials, execution } = query.data;
+  const { boq, items, sections, species, materials, execution, activities, vehicles, rates } =
+    query.data;
   const totals = computeTotals(items, boq);
   const breakdown = kindBreakdown(items);
   const budget = Number(boq.projects?.budget_cost ?? 0);
@@ -389,6 +410,9 @@ function BoqDetail() {
                 sections={sections}
                 species={species}
                 materials={materials}
+                activities={activities}
+                vehicles={vehicles}
+                rates={rates}
                 pending={addItem.isPending}
                 onSubmit={(form) => addItem.mutate(form)}
               />
@@ -600,6 +624,9 @@ function BoqDetail() {
       {editingItemId ? (
         <EditItemDialog
           item={items.find((i) => i.id === editingItemId)!}
+          activities={activities}
+          vehicles={vehicles}
+          rates={rates}
           pending={updateItem.isPending}
           onOpenChange={(open) => !open && setEditingItemId(null)}
           onSubmit={(form) => updateItem.mutate(form)}
@@ -698,16 +725,183 @@ type MaterialOption = {
   hsn_code: string | null;
 };
 
+const ACCESS_FACTORS = [
+  { value: "1", label: "Normal access" },
+  { value: "1.15", label: "Constrained access (+15%)" },
+  { value: "1.3", label: "Severe access (+30%)" },
+] as const;
+
+/**
+ * Estimates the labour, machinery and transport cost of physically
+ * installing a quantity of plants on site -- distinct from the plant's own
+ * buy price. Ports Samak's Landscape Labour & Logistics Cost Master
+ * workbook; every rate behind it (wages, overhead %, profit %, vehicle
+ * rates) lives in editable tables, not hardcoded here.
+ */
+function InstallationCalculator({
+  activities,
+  vehicles,
+  rates,
+  quantity,
+  onApply,
+}: {
+  activities: ProductivityActivity[];
+  vehicles: VehicleRate[];
+  rates: CostRates;
+  quantity: string;
+  onApply: (installCostPerUnit: number) => void;
+}) {
+  const [activityCode, setActivityCode] = useState("");
+  const [distanceKm, setDistanceKm] = useState(
+    String(rates["default_transport_distance_km"] ?? 30),
+  );
+  const [accessFactor, setAccessFactor] = useState("1");
+
+  const activity = activities.find((a) => a.activity_code === activityCode);
+  const qty = Number(quantity || 0);
+  const result =
+    activity && qty > 0
+      ? calculateInstallationCost({
+          activity,
+          quantity: qty,
+          distanceKm: Number(distanceKm || 0),
+          accessFactor: Number(accessFactor),
+          rates,
+          vehicles,
+        })
+      : null;
+
+  return (
+    <div className="rounded-lg border border-dashed border-border p-3">
+      <p className="text-xs font-medium">Installation cost calculator</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        Labour, machinery and transport to install this line — separate from the plant/material buy
+        price above.
+      </p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-1 sm:col-span-3">
+          <Label className="text-xs">Activity</Label>
+          <Select value={activityCode} onValueChange={setActivityCode}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select the closest work type" />
+            </SelectTrigger>
+            <SelectContent>
+              {activities.map((a) => (
+                <SelectItem key={a.activity_code} value={a.activity_code}>
+                  {a.work_type}
+                  {a.size_spec ? ` (${a.size_spec})` : ""}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-1">
+          <Label htmlFor="calc-distance" className="text-xs">
+            Distance (km)
+          </Label>
+          <Input
+            id="calc-distance"
+            inputMode="decimal"
+            value={distanceKm}
+            onChange={(e) => setDistanceKm(e.target.value)}
+          />
+        </div>
+        <div className="grid gap-1 sm:col-span-2">
+          <Label className="text-xs">Site access</Label>
+          <Select value={accessFactor} onValueChange={setAccessFactor}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ACCESS_FACTORS.map((a) => (
+                <SelectItem key={a.value} value={a.value}>
+                  {a.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {activity && qty <= 0 ? (
+        <p className="mt-2 text-xs text-muted-foreground">Enter a quantity above to calculate.</p>
+      ) : null}
+
+      {result ? (
+        <div className="mt-3 space-y-1 border-t border-border pt-2 text-xs">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Labour + supervisor</span>
+            <span className="text-numeric">{inr(result.labourCost + result.supervisorCost)}</span>
+          </div>
+          {result.machineCost > 0 ? (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Machinery</span>
+              <span className="text-numeric">{inr(result.machineCost)}</span>
+            </div>
+          ) : null}
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">
+              Transport + handling ({result.trips} trip{result.trips === 1 ? "" : "s"})
+            </span>
+            <span className="text-numeric">
+              {inr(result.transportCost + result.waitingHandlingCost)}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Tools/PPE</span>
+            <span className="text-numeric">{inr(result.toolsPpeCost)}</span>
+          </div>
+          <div className="flex justify-between font-medium">
+            <span>Direct cost</span>
+            <span className="text-numeric">{inr(result.directCost)}</span>
+          </div>
+          <div className="flex justify-between text-muted-foreground">
+            <span>+ Overhead, profit, GST</span>
+            <span className="text-numeric">
+              {inr(result.overheadCost + result.profitCost + result.gstCost)}
+            </span>
+          </div>
+          <div className="flex justify-between border-t border-border pt-1 font-semibold">
+            <span>
+              Total ({qty} {activity?.uom})
+            </span>
+            <span className="text-numeric">{inr(result.totalCost)}</span>
+          </div>
+          <div className="flex justify-between text-primary">
+            <span>Cost per unit</span>
+            <span className="text-numeric font-medium">{inr(result.costPerUnit)}</span>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2 w-full"
+            onClick={() => onApply(result.costPerUnit)}
+          >
+            Add to rate
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AddItemDialog({
   sections,
   species,
   materials,
+  activities,
+  vehicles,
+  rates,
   pending,
   onSubmit,
 }: {
   sections: { id: string; name: string }[];
   species: SpeciesOption[];
   materials: MaterialOption[];
+  activities: ProductivityActivity[];
+  vehicles: VehicleRate[];
+  rates: CostRates;
   pending: boolean;
   onSubmit: (form: {
     sectionId: string;
@@ -1027,6 +1221,18 @@ function AddItemDialog({
               placeholder="e.g. 18"
             />
           </div>
+
+          {itemKind === "plant" || itemKind === "material" ? (
+            <InstallationCalculator
+              activities={activities}
+              vehicles={vehicles}
+              rates={rates}
+              quantity={quantity}
+              onApply={(installCostPerUnit) =>
+                setRate(String(Number(rate || 0) + installCostPerUnit))
+              }
+            />
+          ) : null}
         </div>
         <DialogFooter>
           <Button
@@ -1065,6 +1271,9 @@ function AddItemDialog({
 
 function EditItemDialog({
   item,
+  activities,
+  vehicles,
+  rates,
   pending,
   onOpenChange,
   onSubmit,
@@ -1080,6 +1289,9 @@ function EditItemDialog({
     gst_percent: number | null;
     remarks: string | null;
   };
+  activities: ProductivityActivity[];
+  vehicles: VehicleRate[];
+  rates: CostRates;
   pending: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (form: {
@@ -1186,6 +1398,16 @@ function EditItemDialog({
               />
             </div>
           </div>
+
+          <InstallationCalculator
+            activities={activities}
+            vehicles={vehicles}
+            rates={rates}
+            quantity={quantity}
+            onApply={(installCostPerUnit) =>
+              setRate(String(Number(rate || 0) + installCostPerUnit))
+            }
+          />
         </div>
         <DialogFooter>
           <Button

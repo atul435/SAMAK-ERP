@@ -1897,6 +1897,206 @@ export type Database = {
           },
         ];
       };
+      labour_productivity_norms: {
+        Row: {
+          activity_code: string;
+          basis_notes: string | null;
+          confidence: string | null;
+          created_at: string;
+          direct_mh_per_unit: number;
+          id: string;
+          internal_shift_mh: number | null;
+          loading_mh: number | null;
+          machine_hr_per_unit: number | null;
+          machine_type: string | null;
+          pit_bed: string | null;
+          pit_bed_prep_mh: number | null;
+          plant_backfill_mh: number | null;
+          size_spec: string | null;
+          stake_tie_mh: number | null;
+          suggested_vehicle: string | null;
+          supervisor_mh_per_unit: number;
+          typical_weight_kg: number | null;
+          units_per_day_2person_crew: number | null;
+          unloading_mh: number | null;
+          uom: string;
+          updated_at: string;
+          water_cleanup_mh: number | null;
+          work_type: string;
+        };
+        Insert: {
+          activity_code: string;
+          basis_notes?: string | null;
+          confidence?: string | null;
+          created_at?: string;
+          direct_mh_per_unit: number;
+          id?: string;
+          internal_shift_mh?: number | null;
+          loading_mh?: number | null;
+          machine_hr_per_unit?: number | null;
+          machine_type?: string | null;
+          pit_bed?: string | null;
+          pit_bed_prep_mh?: number | null;
+          plant_backfill_mh?: number | null;
+          size_spec?: string | null;
+          stake_tie_mh?: number | null;
+          suggested_vehicle?: string | null;
+          supervisor_mh_per_unit: number;
+          typical_weight_kg?: number | null;
+          units_per_day_2person_crew?: number | null;
+          unloading_mh?: number | null;
+          uom: string;
+          updated_at?: string;
+          water_cleanup_mh?: number | null;
+          work_type: string;
+        };
+        Update: {
+          activity_code?: string;
+          basis_notes?: string | null;
+          confidence?: string | null;
+          created_at?: string;
+          direct_mh_per_unit?: number;
+          id?: string;
+          internal_shift_mh?: number | null;
+          loading_mh?: number | null;
+          machine_hr_per_unit?: number | null;
+          machine_type?: string | null;
+          pit_bed?: string | null;
+          pit_bed_prep_mh?: number | null;
+          plant_backfill_mh?: number | null;
+          size_spec?: string | null;
+          stake_tie_mh?: number | null;
+          suggested_vehicle?: string | null;
+          supervisor_mh_per_unit?: number;
+          typical_weight_kg?: number | null;
+          units_per_day_2person_crew?: number | null;
+          unloading_mh?: number | null;
+          uom?: string;
+          updated_at?: string;
+          water_cleanup_mh?: number | null;
+          work_type?: string;
+        };
+        Relationships: [];
+      };
+      pit_bed_norms: {
+        Row: {
+          application: string;
+          code: string;
+          created_at: string;
+          dimension: string | null;
+          excavation_m3: number | null;
+          id: string;
+          machine_hr: number | null;
+          reference: string | null;
+          starter_mh: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          application: string;
+          code: string;
+          created_at?: string;
+          dimension?: string | null;
+          excavation_m3?: number | null;
+          id?: string;
+          machine_hr?: number | null;
+          reference?: string | null;
+          starter_mh?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          application?: string;
+          code?: string;
+          created_at?: string;
+          dimension?: string | null;
+          excavation_m3?: number | null;
+          id?: string;
+          machine_hr?: number | null;
+          reference?: string | null;
+          starter_mh?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      vehicle_rates: {
+        Row: {
+          base_rate_per_trip: number;
+          created_at: string;
+          id: string;
+          minimum_rate: number;
+          payload_kg: number;
+          rate_per_km: number;
+          updated_at: string;
+          use_case: string | null;
+          vehicle: string;
+          volume_m3: number | null;
+        };
+        Insert: {
+          base_rate_per_trip: number;
+          created_at?: string;
+          id?: string;
+          minimum_rate: number;
+          payload_kg: number;
+          rate_per_km: number;
+          updated_at?: string;
+          use_case?: string | null;
+          vehicle: string;
+          volume_m3?: number | null;
+        };
+        Update: {
+          base_rate_per_trip?: number;
+          created_at?: string;
+          id?: string;
+          minimum_rate?: number;
+          payload_kg?: number;
+          rate_per_km?: number;
+          updated_at?: string;
+          use_case?: string | null;
+          vehicle?: string;
+          volume_m3?: number | null;
+        };
+        Relationships: [];
+      };
+      cost_input_rates: {
+        Row: {
+          company_id: string;
+          id: string;
+          key: string;
+          label: string;
+          notes: string | null;
+          unit: string | null;
+          updated_at: string;
+          value: number;
+        };
+        Insert: {
+          company_id: string;
+          id?: string;
+          key: string;
+          label: string;
+          notes?: string | null;
+          unit?: string | null;
+          updated_at?: string;
+          value: number;
+        };
+        Update: {
+          company_id?: string;
+          id?: string;
+          key?: string;
+          label?: string;
+          notes?: string | null;
+          unit?: string | null;
+          updated_at?: string;
+          value?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cost_input_rates_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       materials: {
         Row: {
           category: string;
