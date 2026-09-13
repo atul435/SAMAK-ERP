@@ -307,7 +307,7 @@ STRICT RULES:
  * is enforced purely through the system prompt's format instructions and
  * recovered defensively (stripping any ```json fences the model adds).
  */
-export async function callGateway(system: string, user: string) {
+export async function callGateway(system: string, user: string, maxTokens = 1536) {
   const apiKey = process.env["ANTHROPIC_API_KEY"];
   if (!apiKey) throw new Error("GrowIQ is not configured yet — missing ANTHROPIC_API_KEY.");
 
@@ -320,7 +320,7 @@ export async function callGateway(system: string, user: string) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      max_tokens: 1536,
+      max_tokens: maxTokens,
       system,
       messages: [{ role: "user", content: user }],
     }),
