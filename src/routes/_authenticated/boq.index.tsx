@@ -76,7 +76,7 @@ function BoqRegister() {
       const { data, error } = await supabase
         .from("boqs")
         .select(
-          "id, boq_code, title, version, status, approval_state, updated_at, overhead_percent, profit_percent, contingency_percent, tax_percent, projects(name, project_code), designs(design_code, title), clients(name), boq_items(quantity, wastage_percent, unit_rate, item_kind)",
+          "id, boq_code, title, version, status, approval_state, updated_at, overhead_percent, profit_percent, contingency_percent, tax_percent, projects(name, project_code), designs(design_code, title), clients(name), boq_items(quantity, wastage_percent, unit_rate, item_kind, gst_percent)",
         )
         .eq("is_archived", false)
         .order("boq_code");
@@ -149,7 +149,7 @@ function BoqRegister() {
         const { data: plants, error: plantsError } = await supabase
           .from("design_plant_items")
           .select(
-            "quantity, unit_rate, plant_size, zone, plant_species(common_name, botanical_name, id)",
+            "quantity, unit_rate, plant_size, zone, plant_species(common_name, botanical_name, id, gst_percent)",
           )
           .eq("design_id", design.id);
         if (plantsError) throw plantsError;
@@ -173,6 +173,7 @@ function BoqRegister() {
               quantity: Number(p.quantity ?? 0),
               wastage_percent: 5,
               unit_rate: Number(p.unit_rate ?? 0),
+              gst_percent: p.plant_species?.gst_percent ?? null,
               remarks: p.zone ? `Zone ${p.zone}` : null,
               sort_order: index + 1,
             })),

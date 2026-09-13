@@ -46,6 +46,39 @@ describe("computeTotals", () => {
     expect(totals.grand).toBeCloseTo(29854);
   });
 
+  it("taxes each line at its own GST rate, blending the rest of the markup proportionally", () => {
+    // Plant: 50 * 1.0 * 450 = 22,500 direct, taxed at 5%
+    // Material: 200 * 1.0 * 180 = 36,000 direct, taxed at 18%
+    const items = [
+      { quantity: 50, wastage_percent: 0, unit_rate: 450, item_kind: "plant", gst_percent: 5 },
+      { quantity: 200, wastage_percent: 0, unit_rate: 180, item_kind: "material", gst_percent: 18 },
+    ];
+    const totals = computeTotals(items, {
+      overhead_percent: 0,
+      contingency_percent: 0,
+      profit_percent: 0,
+      tax_percent: 18, // must be ignored: every line has its own rate
+    });
+    expect(totals.direct).toBe(58500);
+    // No markup in this case, so preTax equals direct and tax is a pure
+    // per-line sum: 22,500*5% + 36,000*18% = 1,125 + 6,480 = 7,605.
+    expect(totals.tax).toBeCloseTo(7605);
+    expect(totals.grand).toBeCloseTo(66105);
+  });
+
+  it("falls back to the BOQ's blanket rate for a line with no GST of its own", () => {
+    const items = [
+      { quantity: 10, wastage_percent: 0, unit_rate: 1000, item_kind: "material" }, // no gst_percent
+    ];
+    const totals = computeTotals(items, {
+      overhead_percent: 0,
+      contingency_percent: 0,
+      profit_percent: 0,
+      tax_percent: 18,
+    });
+    expect(totals.tax).toBeCloseTo(1800); // 18% of 10,000, same as the old flat-rate formula
+  });
+
   it("returns all zeros for an empty estimate", () => {
     const totals = computeTotals([], {
       overhead_percent: 10,

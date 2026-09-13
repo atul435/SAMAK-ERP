@@ -294,6 +294,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string
+          gst_percent: number | null
           id: string
           item_kind: string
           material_id: string | null
@@ -313,6 +314,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description: string
+          gst_percent?: number | null
           id?: string
           item_kind?: string
           material_id?: string | null
@@ -332,6 +334,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string
+          gst_percent?: number | null
           id?: string
           item_kind?: string
           material_id?: string | null
@@ -1903,6 +1906,7 @@ export type Database = {
           code: string
           created_at: string
           created_by: string | null
+          gst_percent: number | null
           hsn_code: string | null
           id: string
           is_active: boolean
@@ -1917,6 +1921,7 @@ export type Database = {
           code: string
           created_at?: string
           created_by?: string | null
+          gst_percent?: number | null
           hsn_code?: string | null
           id?: string
           is_active?: boolean
@@ -1931,6 +1936,7 @@ export type Database = {
           code?: string
           created_at?: string
           created_by?: string | null
+          gst_percent?: number | null
           hsn_code?: string | null
           id?: string
           is_active?: boolean
@@ -2656,7 +2662,9 @@ export type Database = {
           growth_rate: string | null
           habit: string | null
           heat_tolerance: number | null
+          gst_percent: number | null
           himalayan_foothills_fit: number | null
+          hsn_code: string | null
           id: string
           indicative_buy_price: number | null
           indicative_sell_price: number | null
@@ -2722,7 +2730,9 @@ export type Database = {
           growth_rate?: string | null
           habit?: string | null
           heat_tolerance?: number | null
+          gst_percent?: number | null
           himalayan_foothills_fit?: number | null
+          hsn_code?: string | null
           id?: string
           indicative_buy_price?: number | null
           indicative_sell_price?: number | null
@@ -2788,7 +2798,9 @@ export type Database = {
           growth_rate?: string | null
           habit?: string | null
           heat_tolerance?: number | null
+          gst_percent?: number | null
           himalayan_foothills_fit?: number | null
+          hsn_code?: string | null
           id?: string
           indicative_buy_price?: number | null
           indicative_sell_price?: number | null

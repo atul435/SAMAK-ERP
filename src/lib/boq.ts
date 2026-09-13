@@ -3,6 +3,7 @@ export type BoqItemLike = {
   wastage_percent: number | null;
   unit_rate: number | null;
   item_kind: string | null;
+  gst_percent?: number | null;
 };
 
 export type BoqMarkups = {
@@ -39,7 +40,22 @@ export function computeTotals(items: BoqItemLike[], markups: BoqMarkups): BoqTot
   const contingency = (direct * Number(markups.contingency_percent ?? 0)) / 100;
   const profit = ((direct + overhead + contingency) * Number(markups.profit_percent ?? 0)) / 100;
   const preTax = direct + overhead + contingency + profit;
-  const tax = (preTax * Number(markups.tax_percent ?? 0)) / 100;
+
+  // Each line is taxed at its own GST rate (falling back to the BOQ's
+  // blanket tax_percent for a line with no rate of its own -- old items, or
+  // one added without one). Overhead/contingency/profit aren't tied to any
+  // single item, so they're taxed at the direct-cost-weighted average rate:
+  // exact when every item shares one rate (identical to the old flat-rate
+  // formula), and a fair blend for a BOQ mixing low-GST plants with
+  // higher-GST hardscape.
+  const directTax = items.reduce((sum, i) => {
+    const rate = i.gst_percent ?? markups.tax_percent ?? 0;
+    return sum + lineAmount(i) * (Number(rate) / 100);
+  }, 0);
+  const effectiveRate = direct > 0 ? directTax / direct : Number(markups.tax_percent ?? 0) / 100;
+  const markupTax = (overhead + contingency + profit) * effectiveRate;
+  const tax = directTax + markupTax;
+
   return { direct, overhead, profit, contingency, preTax, tax, grand: preTax + tax };
 }
 

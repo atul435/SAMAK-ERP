@@ -97,17 +97,20 @@ function BoqDetail() {
         supabase
           .from("boq_items")
           .select(
-            "id, section_id, item_kind, description, uom, quantity, wastage_percent, unit_rate, remarks, sort_order",
+            "id, section_id, item_kind, description, uom, quantity, wastage_percent, unit_rate, gst_percent, remarks, sort_order",
           )
           .eq("boq_id", boqId)
           .order("sort_order"),
         supabase
           .from("plant_species")
           .select(
-            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price",
+            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code",
           )
           .order("common_name"),
-        supabase.from("materials").select("id, name, uom, standard_rate").order("name"),
+        supabase
+          .from("materials")
+          .select("id, name, uom, standard_rate, gst_percent, hsn_code")
+          .order("name"),
         supabase
           .from("boq_item_execution")
           .select("boq_item_id, quantity_done, executed_amount, percent_done, last_reported_on")
@@ -157,6 +160,7 @@ function BoqDetail() {
       quantity: string;
       wastage: string;
       rate: string;
+      gstPercent: string;
       materialId: string;
       speciesId: string;
     }) => {
@@ -169,6 +173,7 @@ function BoqDetail() {
         quantity: Number(form.quantity || 0),
         wastage_percent: Number(form.wastage || 0),
         unit_rate: Number(form.rate || 0),
+        gst_percent: form.gstPercent.trim() ? Number(form.gstPercent) : null,
         material_id: form.materialId || null,
         species_id: form.speciesId || null,
         sort_order: (query.data?.items.length ?? 0) + 1,
@@ -252,7 +257,8 @@ function BoqDetail() {
   const budget = Number(boq.projects?.budget_cost ?? 0);
   const executed = executionMap(execution);
   const executedDirect = items.reduce(
-    (sum, item) => sum + Math.min(Number(executed.get(item.id)?.executed_amount ?? 0), lineAmount(item)),
+    (sum, item) =>
+      sum + Math.min(Number(executed.get(item.id)?.executed_amount ?? 0), lineAmount(item)),
     0,
   );
   const executedPercent = totals.direct > 0 ? (executedDirect / totals.direct) * 100 : 0;
@@ -303,7 +309,11 @@ function BoqDetail() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Direct cost" value={inr(totals.direct)} hint={`${items.length} line items`} />
+        <StatCard
+          label="Direct cost"
+          value={inr(totals.direct)}
+          hint={`${items.length} line items`}
+        />
         <StatCard
           label="Executed on site"
           value={inr(executedDirect)}
@@ -370,6 +380,7 @@ function BoqDetail() {
                           <th className="px-4 py-2 text-right font-medium">Qty</th>
                           <th className="px-4 py-2 text-right font-medium">Incl. wastage</th>
                           <th className="px-4 py-2 text-right font-medium">Rate</th>
+                          <th className="px-4 py-2 text-right font-medium">GST</th>
                           <th className="px-4 py-2 text-right font-medium">Amount</th>
                           <th className="px-4 py-2 text-right font-medium">Done on site</th>
                           {canEdit ? <th className="px-4 py-2" /> : null}
@@ -402,6 +413,9 @@ function BoqDetail() {
                               <td className="px-4 py-2 text-right text-numeric">
                                 {inr(item.unit_rate)}
                               </td>
+                              <td className="px-4 py-2 text-right text-numeric text-muted-foreground">
+                                {item.gst_percent != null ? `${item.gst_percent}%` : "—"}
+                              </td>
                               <td className="px-4 py-2 text-right font-medium text-numeric">
                                 {inr(lineAmount(item))}
                               </td>
@@ -413,7 +427,8 @@ function BoqDetail() {
                                       {item.uom}
                                     </span>
                                     <span className="block text-xs text-muted-foreground">
-                                      {donePct.toFixed(0)}% · {inr(Number(exec?.executed_amount ?? 0))}
+                                      {donePct.toFixed(0)}% ·{" "}
+                                      {inr(Number(exec?.executed_amount ?? 0))}
                                     </span>
                                   </>
                                 ) : (
@@ -437,7 +452,7 @@ function BoqDetail() {
                         {section.items.length === 0 ? (
                           <tr>
                             <td
-                              colSpan={canEdit ? 8 : 7}
+                              colSpan={canEdit ? 9 : 8}
                               className="px-4 py-4 text-sm text-muted-foreground"
                             >
                               No line items in this section yet.
@@ -472,7 +487,10 @@ function BoqDetail() {
                   value={inr(totals.profit)}
                 />
                 <Row label="Sub-total before tax" value={inr(totals.preTax)} strong />
-                <Row label={`GST (${Number(boq.tax_percent ?? 0)}%)`} value={inr(totals.tax)} />
+                <Row
+                  label={`GST (${totals.preTax > 0 ? ((totals.tax / totals.preTax) * 100).toFixed(1) : "0"}% effective, from each item's own rate)`}
+                  value={inr(totals.tax)}
+                />
                 <Row label="Quoted total" value={inr(totals.grand)} strong />
               </dl>
             </div>
@@ -602,6 +620,17 @@ type SpeciesOption = {
   standard_height_girth: string | null;
   indicative_buy_price: number | null;
   indicative_sell_price: number | null;
+  gst_percent: number | null;
+  hsn_code: string | null;
+};
+
+type MaterialOption = {
+  id: string;
+  name: string;
+  uom: string;
+  standard_rate: number;
+  gst_percent: number | null;
+  hsn_code: string | null;
 };
 
 function AddItemDialog({
@@ -613,7 +642,7 @@ function AddItemDialog({
 }: {
   sections: { id: string; name: string }[];
   species: SpeciesOption[];
-  materials: { id: string; name: string; uom: string; standard_rate: number }[];
+  materials: MaterialOption[];
   pending: boolean;
   onSubmit: (form: {
     sectionId: string;
@@ -623,6 +652,7 @@ function AddItemDialog({
     quantity: string;
     wastage: string;
     rate: string;
+    gstPercent: string;
     materialId: string;
     speciesId: string;
   }) => void;
@@ -635,6 +665,7 @@ function AddItemDialog({
   const [quantity, setQuantity] = useState("");
   const [wastage, setWastage] = useState("0");
   const [rate, setRate] = useState("");
+  const [gstPercent, setGstPercent] = useState("");
   const [materialId, setMaterialId] = useState("");
   const [speciesId, setSpeciesId] = useState("");
   const [speciesOpen, setSpeciesOpen] = useState(false);
@@ -726,6 +757,7 @@ function AddItemDialog({
                               setDescription(`${s.common_name} (${s.botanical_name})`);
                               const suggested = s.indicative_sell_price ?? s.indicative_buy_price;
                               if (suggested != null) setRate(String(suggested));
+                              setGstPercent(s.gst_percent != null ? String(s.gst_percent) : "");
                               setSpeciesOpen(false);
                             }}
                           >
@@ -738,9 +770,7 @@ function AddItemDialog({
                             <div className="min-w-0">
                               <p className="truncate">
                                 {s.common_name}{" "}
-                                <span className="text-muted-foreground">
-                                  ({s.botanical_name})
-                                </span>
+                                <span className="text-muted-foreground">({s.botanical_name})</span>
                               </p>
                               {s.indicative_sell_price != null || s.pot_bag_size ? (
                                 <p className="text-xs text-muted-foreground">
@@ -785,6 +815,7 @@ function AddItemDialog({
                     setDescription(m.name);
                     setUom(m.uom);
                     setRate(String(m.standard_rate ?? ""));
+                    setGstPercent(m.gst_percent != null ? String(m.gst_percent) : "");
                   }
                 }}
               >
@@ -846,6 +877,16 @@ function AddItemDialog({
               />
             </div>
           </div>
+          <div className="grid gap-2 sm:max-w-[calc(25%-0.75rem)]">
+            <Label htmlFor="item-gst">GST %</Label>
+            <Input
+              id="item-gst"
+              inputMode="decimal"
+              value={gstPercent}
+              onChange={(e) => setGstPercent(e.target.value)}
+              placeholder="e.g. 18"
+            />
+          </div>
         </div>
         <DialogFooter>
           <Button
@@ -859,12 +900,14 @@ function AddItemDialog({
                 quantity,
                 wastage,
                 rate,
+                gstPercent,
                 materialId,
                 speciesId,
               });
               setDescription("");
               setQuantity("");
               setRate("");
+              setGstPercent("");
               setOpen(false);
             }}
           >
@@ -936,13 +979,17 @@ function MarkupsPanel({
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="mk-tax">GST %</Label>
+          <Label htmlFor="mk-tax">Fallback GST %</Label>
           <Input
             id="mk-tax"
             value={tax}
             disabled={!canEdit}
             onChange={(e) => setTax(e.target.value)}
           />
+          <p className="text-xs text-muted-foreground">
+            Used only for line items with no GST rate of their own — set each item's real rate when
+            adding it instead.
+          </p>
         </div>
       </div>
       <div className="grid gap-2">

@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -72,6 +73,7 @@ const REGION_FIELDS = [
 function PlantsPage() {
   const { can } = useAuth();
   const canPushToBoq = can("boq", "edit");
+  const canEditPrice = can("plantiq", "edit");
   const queryClient = useQueryClient();
 
   const [term, setTerm] = useState("");
@@ -86,6 +88,7 @@ function PlantsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [boqDialogOpen, setBoqDialogOpen] = useState(false);
   const [targetBoqId, setTargetBoqId] = useState("");
+  const [pricingSpeciesId, setPricingSpeciesId] = useState<string | null>(null);
 
   const query = useQuery({
     queryKey: ["plant_species"],
@@ -93,12 +96,39 @@ function PlantsPage() {
       const { data, error } = await supabase
         .from("plant_species")
         .select(
-          "id, plant_code, botanical_name, common_name, local_name, family, category, subcategory, native_status, sunlight, water_need, maintenance_level, mature_height_m, mature_spread_m, native_region, notes, ai_design_tags, samak_preferred, samak_field_rating, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, delhi_ncr_fit, arid_nw_fit, himalayan_foothills_fit, temperate_hills_fit, western_coast_fit, deccan_plateau_fit, east_ne_humid_fit, coastal_south_fit, indicative_buy_price, indicative_sell_price",
+          "id, plant_code, botanical_name, common_name, local_name, family, category, subcategory, native_status, sunlight, water_need, maintenance_level, mature_height_m, mature_spread_m, native_region, notes, ai_design_tags, samak_preferred, samak_field_rating, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, delhi_ncr_fit, arid_nw_fit, himalayan_foothills_fit, temperate_hills_fit, western_coast_fit, deccan_plateau_fit, east_ne_humid_fit, coastal_south_fit, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code",
         )
         .order("botanical_name");
       if (error) throw error;
       return data;
     },
+  });
+
+  const savePricing = useMutation({
+    mutationFn: async (form: {
+      id: string;
+      buyPrice: string;
+      sellPrice: string;
+      gstPercent: string;
+      hsnCode: string;
+    }) => {
+      const { error } = await supabase
+        .from("plant_species")
+        .update({
+          indicative_buy_price: form.buyPrice.trim() ? Number(form.buyPrice) : null,
+          indicative_sell_price: form.sellPrice.trim() ? Number(form.sellPrice) : null,
+          gst_percent: form.gstPercent.trim() ? Number(form.gstPercent) : null,
+          hsn_code: form.hsnCode.trim() || null,
+        })
+        .eq("id", form.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Pricing saved");
+      setPricingSpeciesId(null);
+      void queryClient.invalidateQueries({ queryKey: ["plant_species"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const explorerSearch = useServerFn(searchPlantExplorer);
@@ -147,6 +177,7 @@ function PlantsPage() {
           quantity: 1,
           wastage_percent: 5,
           unit_rate: Number(p.indicative_sell_price ?? p.indicative_buy_price ?? 0),
+          gst_percent: p.gst_percent != null ? Number(p.gst_percent) : null,
           sort_order: (count ?? 0) + index + 1,
         })),
       );
@@ -437,11 +468,25 @@ function PlantsPage() {
 
                 {p.notes ? <p className="mt-3 text-xs text-muted-foreground">{p.notes}</p> : null}
 
-                <p className="mt-3 text-[10px] text-muted-foreground">
-                  {p.plant_code ?? "—"}
-                  {p.samak_field_rating ? ` · Field rating ${p.samak_field_rating}/5` : ""}
-                  {p.indicative_sell_price != null ? ` · ~₹${p.indicative_sell_price}` : ""}
-                </p>
+                <div className="mt-3 flex items-end justify-between gap-2">
+                  <p className="text-[10px] text-muted-foreground">
+                    {p.plant_code ?? "—"}
+                    {p.samak_field_rating ? ` · Field rating ${p.samak_field_rating}/5` : ""}
+                    <br />
+                    {p.indicative_sell_price != null ? (
+                      <span className="text-numeric">₹{p.indicative_sell_price}</span>
+                    ) : (
+                      "No price set"
+                    )}
+                    {p.gst_percent != null ? ` · GST ${p.gst_percent}%` : ""}
+                    {p.hsn_code ? ` · HSN ${p.hsn_code}` : ""}
+                  </p>
+                  {canEditPrice ? (
+                    <Button variant="ghost" size="sm" onClick={() => setPricingSpeciesId(p.id)}>
+                      Edit price
+                    </Button>
+                  ) : null}
+                </div>
               </article>
             );
           })}
@@ -488,6 +533,110 @@ function PlantsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {pricingSpeciesId ? (
+        <PricingDialog
+          species={all.find((p) => p.id === pricingSpeciesId)!}
+          pending={savePricing.isPending}
+          onOpenChange={(open) => !open && setPricingSpeciesId(null)}
+          onSubmit={(form) => savePricing.mutate(form)}
+        />
+      ) : null}
     </>
+  );
+}
+
+function PricingDialog({
+  species,
+  pending,
+  onOpenChange,
+  onSubmit,
+}: {
+  species: {
+    id: string;
+    common_name: string;
+    botanical_name: string;
+    indicative_buy_price: number | null;
+    indicative_sell_price: number | null;
+    gst_percent: number | null;
+    hsn_code: string | null;
+  };
+  pending: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (form: {
+    id: string;
+    buyPrice: string;
+    sellPrice: string;
+    gstPercent: string;
+    hsnCode: string;
+  }) => void;
+}) {
+  const [buyPrice, setBuyPrice] = useState(String(species.indicative_buy_price ?? ""));
+  const [sellPrice, setSellPrice] = useState(String(species.indicative_sell_price ?? ""));
+  const [gstPercent, setGstPercent] = useState(String(species.gst_percent ?? ""));
+  const [hsnCode, setHsnCode] = useState(species.hsn_code ?? "");
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Edit pricing</DialogTitle>
+          <DialogDescription>
+            {species.common_name} ({species.botanical_name})
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="buy-price">Buy price ₹</Label>
+              <Input
+                id="buy-price"
+                inputMode="decimal"
+                value={buyPrice}
+                onChange={(e) => setBuyPrice(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="sell-price">Sell price ₹</Label>
+              <Input
+                id="sell-price"
+                inputMode="decimal"
+                value={sellPrice}
+                onChange={(e) => setSellPrice(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="gst-percent">GST %</Label>
+              <Input
+                id="gst-percent"
+                inputMode="decimal"
+                value={gstPercent}
+                onChange={(e) => setGstPercent(e.target.value)}
+                placeholder="e.g. 5"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="hsn-code">HSN code</Label>
+              <Input
+                id="hsn-code"
+                value={hsnCode}
+                onChange={(e) => setHsnCode(e.target.value)}
+                placeholder="0602"
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            disabled={pending}
+            onClick={() => onSubmit({ id: species.id, buyPrice, sellPrice, gstPercent, hsnCode })}
+          >
+            {pending ? "Saving…" : "Save pricing"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
