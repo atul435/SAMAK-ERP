@@ -38,12 +38,13 @@ export const Route = createFileRoute("/_authenticated/boq/")({
       {
         name: "description",
         content:
-          "Bills of quantities priced against each landscape design, plant schedule and project, with live cost breakdowns and markups.",
+          "Bills of quantities and direct client quotations, priced against a design, plant database and project or standalone, with live cost breakdowns and markups.",
       },
       { property: "og:title", content: "BOQ & Estimation — EnvironIQ" },
       {
         property: "og:description",
-        content: "Every estimate linked to its design, plant list and project cost plan.",
+        content:
+          "Every estimate linked to its design and project where one exists, or standalone as a direct quotation for any client.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -55,6 +56,8 @@ export const Route = createFileRoute("/_authenticated/boq/")({
 type NewBoqForm = {
   title: string;
   designId: string;
+  clientId: string;
+  projectId: string;
   notes: string;
   seedFromPlants: boolean;
 };
@@ -95,11 +98,36 @@ function BoqRegister() {
     },
   });
 
+  const clientsQuery = useQuery({
+    queryKey: ["clients-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("clients").select("id, name").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const projectsQuery = useQuery({
+    queryKey: ["projects-lite"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id, name, project_code")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const create = useMutation({
     mutationFn: async (form: NewBoqForm) => {
       if (!employee) throw new Error("Your employee record is missing.");
-      const design = (designsQuery.data ?? []).find((d) => d.id === form.designId);
-      if (!design) throw new Error("Pick the design this BOQ prices.");
+      const design = form.designId
+        ? (designsQuery.data ?? []).find((d) => d.id === form.designId)
+        : undefined;
+      if (!design && !form.clientId) {
+        throw new Error("Pick a design, or a client for a direct quotation.");
+      }
       const next = (query.data ?? []).length + 1;
       const { data: boq, error } = await supabase
         .from("boqs")
@@ -107,9 +135,9 @@ function BoqRegister() {
           company_id: employee.company_id,
           boq_code: `BOQ-${String(next).padStart(4, "0")}`,
           title: form.title,
-          design_id: design.id,
-          project_id: design.project_id,
-          client_id: design.client_id,
+          design_id: design?.id ?? null,
+          project_id: design?.project_id ?? (form.projectId || null),
+          client_id: design?.client_id ?? (form.clientId || null),
           notes: form.notes || null,
           prepared_by: employee.id,
         })
@@ -117,7 +145,7 @@ function BoqRegister() {
         .single();
       if (error) throw error;
 
-      if (form.seedFromPlants) {
+      if (design && form.seedFromPlants) {
         const { data: plants, error: plantsError } = await supabase
           .from("design_plant_items")
           .select(
@@ -190,7 +218,7 @@ function BoqRegister() {
     <>
       <PageHeader
         title="BOQ & Estimation"
-        description="Every bill of quantities is priced against a design and its plant schedule, and rolls up into the project cost plan."
+        description="Price a design's plant schedule and cost plan, or start a direct quotation for any client with no design required."
         actions={
           canEdit ? (
             <Dialog open={open} onOpenChange={setOpen}>
@@ -199,6 +227,8 @@ function BoqRegister() {
               </DialogTrigger>
               <NewBoqDialog
                 designs={designsQuery.data ?? []}
+                clients={clientsQuery.data ?? []}
+                projects={projectsQuery.data ?? []}
                 pending={create.isPending}
                 onSubmit={(form) => create.mutate(form)}
               />
@@ -242,7 +272,7 @@ function BoqRegister() {
       {rows.length === 0 ? (
         <EmptyState
           title="No bills of quantities yet"
-          description="Create a BOQ against a design to price its plant schedule, hardscape and irrigation."
+          description="Create one against a design, or start a direct quotation for a client with no design."
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -293,6 +323,8 @@ function BoqRegister() {
 
 function NewBoqDialog({
   designs,
+  clients,
+  projects,
   pending,
   onSubmit,
 }: {
@@ -300,22 +332,31 @@ function NewBoqDialog({
     id: string;
     design_code: string;
     title: string;
+    project_id: string | null;
+    client_id: string | null;
     projects: { name: string; project_code: string } | null;
   }[];
+  clients: { id: string; name: string }[];
+  projects: { id: string; name: string; project_code: string }[];
   pending: boolean;
   onSubmit: (form: NewBoqForm) => void;
 }) {
   const [title, setTitle] = useState("");
   const [designId, setDesignId] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [projectId, setProjectId] = useState("");
   const [notes, setNotes] = useState("");
   const [seedFromPlants, setSeedFromPlants] = useState(true);
+
+  const design = designs.find((d) => d.id === designId);
 
   return (
     <DialogContent className="max-w-lg">
       <DialogHeader>
         <DialogTitle>New bill of quantities</DialogTitle>
         <DialogDescription>
-          A BOQ always prices a design, so its project, client and plant schedule stay connected.
+          Price a design's plant schedule, or start a direct quotation for a client with no
+          design — either way it prices against the plant and material database.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4">
@@ -329,12 +370,23 @@ function NewBoqDialog({
           />
         </div>
         <div className="grid gap-2">
-          <Label>Design</Label>
-          <Select value={designId} onValueChange={setDesignId}>
+          <Label>Design (optional)</Label>
+          <Select
+            value={designId}
+            onValueChange={(v) => {
+              setDesignId(v);
+              const d = designs.find((x) => x.id === v);
+              if (d) {
+                setClientId(d.client_id ?? "");
+                setProjectId(d.project_id ?? "");
+              }
+            }}
+          >
             <SelectTrigger>
-              <SelectValue placeholder="Select design" />
+              <SelectValue placeholder="No design — direct quotation" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="__none">No design — direct quotation</SelectItem>
               {designs.map((d) => (
                 <SelectItem key={d.id} value={d.id}>
                   {d.design_code} · {d.title}
@@ -344,20 +396,55 @@ function NewBoqDialog({
             </SelectContent>
           </Select>
         </div>
-        <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1 accent-primary"
-            checked={seedFromPlants}
-            onChange={(e) => setSeedFromPlants(e.target.checked)}
-          />
-          <span>
-            Copy the design plant schedule into this BOQ
-            <span className="block text-xs text-muted-foreground">
-              Each species becomes a priced line with 5% wastage, using the design rate.
+        {!design ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label>Client</Label>
+              <Select value={clientId} onValueChange={setClientId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>Project (optional)</Label>
+              <Select value={projectId} onValueChange={setProjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Not linked to a project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.project_code} · {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ) : (
+          <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 accent-primary"
+              checked={seedFromPlants}
+              onChange={(e) => setSeedFromPlants(e.target.checked)}
+            />
+            <span>
+              Copy the design plant schedule into this BOQ
+              <span className="block text-xs text-muted-foreground">
+                Each species becomes a priced line with 5% wastage, using the design rate.
+              </span>
             </span>
-          </span>
-        </label>
+          </label>
+        )}
         <div className="grid gap-2">
           <Label htmlFor="boq-notes">Basis of estimate</Label>
           <Textarea
@@ -371,8 +458,17 @@ function NewBoqDialog({
       </div>
       <DialogFooter>
         <Button
-          disabled={pending || !title.trim() || !designId}
-          onClick={() => onSubmit({ title: title.trim(), designId, notes, seedFromPlants })}
+          disabled={pending || !title.trim() || (!design && !clientId)}
+          onClick={() =>
+            onSubmit({
+              title: title.trim(),
+              designId: design ? designId : "",
+              clientId,
+              projectId,
+              notes,
+              seedFromPlants,
+            })
+          }
         >
           {pending ? "Creating…" : "Create BOQ"}
         </Button>

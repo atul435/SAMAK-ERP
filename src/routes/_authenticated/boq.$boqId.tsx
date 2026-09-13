@@ -28,7 +28,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { inr, shortDate, titleCase } from "@/lib/format";
 import {
   ITEM_KINDS,
@@ -90,7 +101,12 @@ function BoqDetail() {
           )
           .eq("boq_id", boqId)
           .order("sort_order"),
-        supabase.from("plant_species").select("id, common_name, botanical_name").order("common_name"),
+        supabase
+          .from("plant_species")
+          .select(
+            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price",
+          )
+          .order("common_name"),
         supabase.from("materials").select("id, name, uom, standard_rate").order("name"),
         supabase
           .from("boq_item_execution")
@@ -577,6 +593,17 @@ function AddSectionDialog({
   );
 }
 
+type SpeciesOption = {
+  id: string;
+  common_name: string;
+  botanical_name: string;
+  plant_code: string | null;
+  pot_bag_size: string | null;
+  standard_height_girth: string | null;
+  indicative_buy_price: number | null;
+  indicative_sell_price: number | null;
+};
+
 function AddItemDialog({
   sections,
   species,
@@ -585,7 +612,7 @@ function AddItemDialog({
   onSubmit,
 }: {
   sections: { id: string; name: string }[];
-  species: { id: string; common_name: string; botanical_name: string }[];
+  species: SpeciesOption[];
   materials: { id: string; name: string; uom: string; standard_rate: number }[];
   pending: boolean;
   onSubmit: (form: {
@@ -610,6 +637,9 @@ function AddItemDialog({
   const [rate, setRate] = useState("");
   const [materialId, setMaterialId] = useState("");
   const [speciesId, setSpeciesId] = useState("");
+  const [speciesOpen, setSpeciesOpen] = useState(false);
+
+  const selectedSpecies = species.find((s) => s.id === speciesId);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -667,25 +697,79 @@ function AddItemDialog({
           {itemKind === "plant" ? (
             <div className="grid gap-2">
               <Label>Plant species</Label>
-              <Select
-                value={speciesId}
-                onValueChange={(v) => {
-                  setSpeciesId(v);
-                  const s = species.find((x) => x.id === v);
-                  if (s) setDescription(`${s.common_name} (${s.botanical_name})`);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select species" />
-                </SelectTrigger>
-                <SelectContent>
-                  {species.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.common_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={speciesOpen} onOpenChange={setSpeciesOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={speciesOpen}
+                    className="justify-between font-normal"
+                  >
+                    {selectedSpecies
+                      ? `${selectedSpecies.common_name} (${selectedSpecies.botanical_name})`
+                      : "Search 300+ species by name…"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[420px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search common or botanical name…" />
+                    <CommandList>
+                      <CommandEmpty>No species found.</CommandEmpty>
+                      <CommandGroup>
+                        {species.map((s) => (
+                          <CommandItem
+                            key={s.id}
+                            value={`${s.common_name} ${s.botanical_name} ${s.plant_code ?? ""}`}
+                            onSelect={() => {
+                              setSpeciesId(s.id);
+                              setDescription(`${s.common_name} (${s.botanical_name})`);
+                              const suggested = s.indicative_sell_price ?? s.indicative_buy_price;
+                              if (suggested != null) setRate(String(suggested));
+                              setSpeciesOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                speciesId === s.id ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate">
+                                {s.common_name}{" "}
+                                <span className="text-muted-foreground">
+                                  ({s.botanical_name})
+                                </span>
+                              </p>
+                              {s.indicative_sell_price != null || s.pot_bag_size ? (
+                                <p className="text-xs text-muted-foreground">
+                                  {s.pot_bag_size ? `${s.pot_bag_size} · ` : ""}
+                                  {s.indicative_sell_price != null
+                                    ? `~₹${s.indicative_sell_price}`
+                                    : ""}
+                                </p>
+                              ) : null}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              {selectedSpecies?.indicative_sell_price != null ||
+              selectedSpecies?.indicative_buy_price != null ? (
+                <p className="text-xs text-muted-foreground">
+                  Suggested rate ₹
+                  {selectedSpecies.indicative_sell_price ?? selectedSpecies.indicative_buy_price}{" "}
+                  from the plant database
+                  {selectedSpecies.standard_height_girth
+                    ? ` · ${selectedSpecies.standard_height_girth}`
+                    : ""}{" "}
+                  — edit below if this quote uses a different size or supplier.
+                </p>
+              ) : null}
             </div>
           ) : null}
 
