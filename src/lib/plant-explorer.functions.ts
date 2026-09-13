@@ -30,7 +30,7 @@ export const searchPlantExplorer = createServerFn({ method: "POST" })
     const { data: species, error } = await context.supabase
       .from("plant_species")
       .select(
-        "id, common_name, botanical_name, category, subcategory, water_need, sunlight, maintenance_level, growth_rate, mature_height_m, mature_spread_m, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, landscape_uses, ai_design_tags, flower_colour, native_status, samak_preferred, indicative_sell_price, indicative_buy_price",
+        "id, common_name, botanical_name, category, subcategory, water_need, sunlight, maintenance_level, growth_rate, mature_height_m, mature_spread_m, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, landscape_uses, ai_design_tags, flower_colour, native_status, samak_preferred, indicative_sell_price, indicative_buy_price, planting_method, selected_spacing_m, design_coverage_per_plant_m2, plants_per_m2, plants_per_rm",
       );
     if (error) throw error;
 
@@ -39,11 +39,12 @@ export const searchPlantExplorer = createServerFn({ method: "POST" })
 STRICT RULES:
 - Only select species that actually appear in the supplied catalogue, referenced by their exact "id" field.
 - If the request specifies a count (e.g. "20 plants"), return exactly that many when the catalogue has enough reasonable matches; otherwise return fewer and say so in the summary.
+- If the request specifies a planting area (m²) or running length (m) instead of a plant count, use each match's plants_per_m2 or plants_per_rm to compute a suggested quantity for that area/length, and state it plainly in that match's reason (e.g. "groundcover at 0.05 plants/m² -> ~15 plants for 300 m²"). Round up to a whole number of plants.
 - Prefer fewer, well-justified matches over padding the count with weak fits.
 - Never invent species, ids or attributes not present in the data.
 
 Respond as strict JSON with keys:
-matches (array of { id: string, reason: string } -- reason is one short phrase, e.g. "full shade, low maintenance, drought tolerant"),
+matches (array of { id: string, reason: string } -- reason is one short phrase, e.g. "full shade, low maintenance, drought tolerant" or a computed quantity as above),
 summary (string, one sentence on what was selected and any gaps in the brief).`;
 
     const parsed = await callGateway(

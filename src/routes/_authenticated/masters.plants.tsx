@@ -96,7 +96,7 @@ function PlantsPage() {
       const { data, error } = await supabase
         .from("plant_species")
         .select(
-          "id, plant_code, botanical_name, common_name, local_name, family, category, subcategory, native_status, sunlight, water_need, maintenance_level, mature_height_m, mature_spread_m, native_region, notes, ai_design_tags, samak_preferred, samak_field_rating, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, delhi_ncr_fit, arid_nw_fit, himalayan_foothills_fit, temperate_hills_fit, western_coast_fit, deccan_plateau_fit, east_ne_humid_fit, coastal_south_fit, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code",
+          "id, plant_code, botanical_name, common_name, local_name, family, category, subcategory, native_status, sunlight, water_need, maintenance_level, mature_height_m, mature_spread_m, native_region, notes, ai_design_tags, samak_preferred, samak_field_rating, drought_tolerance, heat_tolerance, frost_tolerance, pollution_tolerance, salinity_tolerance, delhi_ncr_fit, arid_nw_fit, himalayan_foothills_fit, temperate_hills_fit, western_coast_fit, deccan_plateau_fit, east_ne_humid_fit, coastal_south_fit, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code, planting_method, selected_spacing_m, design_coverage_per_plant_m2, plants_per_m2, plants_per_rm",
         )
         .order("botanical_name");
       if (error) throw error;
@@ -433,6 +433,19 @@ function PlantsPage() {
                         </span>
                       </>
                     ) : null}
+                  </p>
+                ) : null}
+
+                {p.selected_spacing_m != null ||
+                p.plants_per_m2 != null ||
+                p.plants_per_rm != null ? (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {p.planting_method ? `${p.planting_method} · ` : ""}
+                    {p.selected_spacing_m != null ? `${p.selected_spacing_m}m spacing · ` : ""}
+                    {p.design_coverage_per_plant_m2 != null
+                      ? `${p.design_coverage_per_plant_m2} m²/plant`
+                      : ""}
+                    {p.plants_per_rm ? ` · ${p.plants_per_rm} plants/RM` : ""}
                   </p>
                 ) : null}
 

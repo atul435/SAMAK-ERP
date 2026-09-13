@@ -77,6 +77,7 @@ function BoqDetail() {
   const { can } = useAuth();
   const canEdit = can("boq", "edit");
   const queryClient = useQueryClient();
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   const query = useQuery({
     queryKey: ["boq", boqId],
@@ -97,14 +98,14 @@ function BoqDetail() {
         supabase
           .from("boq_items")
           .select(
-            "id, section_id, item_kind, description, uom, quantity, wastage_percent, unit_rate, gst_percent, remarks, sort_order",
+            "id, section_id, item_kind, description, specification, uom, quantity, wastage_percent, unit_rate, gst_percent, remarks, sort_order",
           )
           .eq("boq_id", boqId)
           .order("sort_order"),
         supabase
           .from("plant_species")
           .select(
-            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code",
+            "id, common_name, botanical_name, plant_code, pot_bag_size, standard_height_girth, indicative_buy_price, indicative_sell_price, gst_percent, hsn_code, nursery_spec, planting_method, design_coverage_per_plant_m2, plants_per_m2, plants_per_rm, default_wastage_percent",
           )
           .order("common_name"),
         supabase
@@ -156,6 +157,7 @@ function BoqDetail() {
       sectionId: string;
       itemKind: string;
       description: string;
+      specification: string;
       uom: string;
       quantity: string;
       wastage: string;
@@ -169,6 +171,7 @@ function BoqDetail() {
         section_id: form.sectionId || null,
         item_kind: form.itemKind,
         description: form.description,
+        specification: form.specification.trim() || null,
         uom: form.uom || "nos",
         quantity: Number(form.quantity || 0),
         wastage_percent: Number(form.wastage || 0),
@@ -182,6 +185,41 @@ function BoqDetail() {
     },
     onSuccess: () => {
       toast.success("Line item added");
+      invalidate();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateItem = useMutation({
+    mutationFn: async (form: {
+      id: string;
+      description: string;
+      specification: string;
+      uom: string;
+      quantity: string;
+      wastage: string;
+      rate: string;
+      gstPercent: string;
+      remarks: string;
+    }) => {
+      const { error } = await supabase
+        .from("boq_items")
+        .update({
+          description: form.description,
+          specification: form.specification.trim() || null,
+          uom: form.uom || "nos",
+          quantity: Number(form.quantity || 0),
+          wastage_percent: Number(form.wastage || 0),
+          unit_rate: Number(form.rate || 0),
+          gst_percent: form.gstPercent.trim() ? Number(form.gstPercent) : null,
+          remarks: form.remarks.trim() || null,
+        })
+        .eq("id", form.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Line item updated");
+      setEditingItemId(null);
       invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -395,6 +433,11 @@ function BoqDetail() {
                             <tr key={item.id} className="border-b border-border/60 last:border-0">
                               <td className="px-4 py-2">
                                 <p className="font-medium">{item.description}</p>
+                                {item.specification ? (
+                                  <p className="text-xs text-muted-foreground">
+                                    {item.specification}
+                                  </p>
+                                ) : null}
                                 {item.remarks ? (
                                   <p className="text-xs text-muted-foreground">{item.remarks}</p>
                                 ) : null}
@@ -436,7 +479,14 @@ function BoqDetail() {
                                 )}
                               </td>
                               {canEdit ? (
-                                <td className="px-4 py-2 text-right">
+                                <td className="px-4 py-2 text-right whitespace-nowrap">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setEditingItemId(item.id)}
+                                  >
+                                    Edit
+                                  </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -546,6 +596,15 @@ function BoqDetail() {
           />
         </TabsContent>
       </Tabs>
+
+      {editingItemId ? (
+        <EditItemDialog
+          item={items.find((i) => i.id === editingItemId)!}
+          pending={updateItem.isPending}
+          onOpenChange={(open) => !open && setEditingItemId(null)}
+          onSubmit={(form) => updateItem.mutate(form)}
+        />
+      ) : null}
     </>
   );
 }
@@ -622,6 +681,12 @@ type SpeciesOption = {
   indicative_sell_price: number | null;
   gst_percent: number | null;
   hsn_code: string | null;
+  nursery_spec: string | null;
+  planting_method: string | null;
+  design_coverage_per_plant_m2: number | null;
+  plants_per_m2: number | null;
+  plants_per_rm: number | null;
+  default_wastage_percent: number | null;
 };
 
 type MaterialOption = {
@@ -648,6 +713,7 @@ function AddItemDialog({
     sectionId: string;
     itemKind: string;
     description: string;
+    specification: string;
     uom: string;
     quantity: string;
     wastage: string;
@@ -661,6 +727,7 @@ function AddItemDialog({
   const [sectionId, setSectionId] = useState(sections[0]?.id ?? "");
   const [itemKind, setItemKind] = useState("material");
   const [description, setDescription] = useState("");
+  const [specification, setSpecification] = useState("");
   const [uom, setUom] = useState("nos");
   const [quantity, setQuantity] = useState("");
   const [wastage, setWastage] = useState("0");
@@ -669,6 +736,8 @@ function AddItemDialog({
   const [materialId, setMaterialId] = useState("");
   const [speciesId, setSpeciesId] = useState("");
   const [speciesOpen, setSpeciesOpen] = useState(false);
+  const [planArea, setPlanArea] = useState("");
+  const [planLength, setPlanLength] = useState("");
 
   const selectedSpecies = species.find((s) => s.id === speciesId);
 
@@ -758,6 +827,9 @@ function AddItemDialog({
                               const suggested = s.indicative_sell_price ?? s.indicative_buy_price;
                               if (suggested != null) setRate(String(suggested));
                               setGstPercent(s.gst_percent != null ? String(s.gst_percent) : "");
+                              if (s.default_wastage_percent != null)
+                                setWastage(String(s.default_wastage_percent));
+                              setSpecification(s.nursery_spec ?? "");
                               setSpeciesOpen(false);
                             }}
                           >
@@ -800,6 +872,63 @@ function AddItemDialog({
                   — edit below if this quote uses a different size or supplier.
                 </p>
               ) : null}
+
+              {selectedSpecies?.plants_per_m2 || selectedSpecies?.plants_per_rm ? (
+                <div className="rounded-lg border border-dashed border-border p-3">
+                  <p className="text-xs font-medium">Quantity engine</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {selectedSpecies.planting_method ? `${selectedSpecies.planting_method} · ` : ""}
+                    {selectedSpecies.design_coverage_per_plant_m2
+                      ? `${selectedSpecies.design_coverage_per_plant_m2} m² per plant at design spacing.`
+                      : "Enter the area or run to estimate quantity."}
+                  </p>
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    {selectedSpecies.plants_per_m2 ? (
+                      <div className="grid gap-1">
+                        <Label htmlFor="plan-area" className="text-xs">
+                          Planting area (m²)
+                        </Label>
+                        <Input
+                          id="plan-area"
+                          inputMode="decimal"
+                          value={planArea}
+                          onChange={(e) => setPlanArea(e.target.value)}
+                        />
+                      </div>
+                    ) : null}
+                    {selectedSpecies.plants_per_rm ? (
+                      <div className="grid gap-1">
+                        <Label htmlFor="plan-length" className="text-xs">
+                          Running length (m)
+                        </Label>
+                        <Input
+                          id="plan-length"
+                          inputMode="decimal"
+                          value={planLength}
+                          onChange={(e) => setPlanLength(e.target.value)}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    disabled={!planArea.trim() && !planLength.trim()}
+                    onClick={() => {
+                      const fromArea =
+                        Number(planArea || 0) * Number(selectedSpecies.plants_per_m2 ?? 0);
+                      const fromLength =
+                        Number(planLength || 0) * Number(selectedSpecies.plants_per_rm ?? 0);
+                      const suggested = Math.ceil(fromArea + fromLength);
+                      if (suggested > 0) setQuantity(String(suggested));
+                    }}
+                  >
+                    Calculate quantity
+                  </Button>
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -841,6 +970,17 @@ function AddItemDialog({
               onChange={(e) => setDescription(e.target.value)}
               rows={2}
               placeholder="Kota stone paving, 25mm, machine cut"
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="item-spec">Specification</Label>
+            <Textarea
+              id="item-spec"
+              value={specification}
+              onChange={(e) => setSpecification(e.target.value)}
+              rows={2}
+              placeholder="Nursery size / pot / girth, or material spec — e.g. 18mm HDPE, screwed joints"
             />
           </div>
 
@@ -896,6 +1036,7 @@ function AddItemDialog({
                 sectionId,
                 itemKind,
                 description: description.trim(),
+                specification,
                 uom,
                 quantity,
                 wastage,
@@ -905,13 +1046,165 @@ function AddItemDialog({
                 speciesId,
               });
               setDescription("");
+              setSpecification("");
               setQuantity("");
               setRate("");
               setGstPercent("");
+              setPlanArea("");
+              setPlanLength("");
               setOpen(false);
             }}
           >
             Add item
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EditItemDialog({
+  item,
+  pending,
+  onOpenChange,
+  onSubmit,
+}: {
+  item: {
+    id: string;
+    description: string;
+    specification: string | null;
+    uom: string;
+    quantity: number;
+    wastage_percent: number;
+    unit_rate: number;
+    gst_percent: number | null;
+    remarks: string | null;
+  };
+  pending: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (form: {
+    id: string;
+    description: string;
+    specification: string;
+    uom: string;
+    quantity: string;
+    wastage: string;
+    rate: string;
+    gstPercent: string;
+    remarks: string;
+  }) => void;
+}) {
+  const [description, setDescription] = useState(item.description);
+  const [specification, setSpecification] = useState(item.specification ?? "");
+  const [uom, setUom] = useState(item.uom);
+  const [quantity, setQuantity] = useState(String(item.quantity));
+  const [wastage, setWastage] = useState(String(item.wastage_percent));
+  const [rate, setRate] = useState(String(item.unit_rate));
+  const [gstPercent, setGstPercent] = useState(
+    item.gst_percent != null ? String(item.gst_percent) : "",
+  );
+  const [remarks, setRemarks] = useState(item.remarks ?? "");
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit line item</DialogTitle>
+          <DialogDescription>
+            Update quantity, price or specification — the plant or material link itself can't be
+            changed here; remove and re-add the line for that.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="edit-item-desc">Description</Label>
+            <Textarea
+              id="edit-item-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={2}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="edit-item-spec">Specification</Label>
+            <Textarea
+              id="edit-item-spec"
+              value={specification}
+              onChange={(e) => setSpecification(e.target.value)}
+              rows={2}
+            />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-uom">Unit</Label>
+              <Input id="edit-item-uom" value={uom} onChange={(e) => setUom(e.target.value)} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-qty">Quantity</Label>
+              <Input
+                id="edit-item-qty"
+                inputMode="decimal"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-wastage">Wastage %</Label>
+              <Input
+                id="edit-item-wastage"
+                inputMode="decimal"
+                value={wastage}
+                onChange={(e) => setWastage(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-rate">Rate ₹</Label>
+              <Input
+                id="edit-item-rate"
+                inputMode="decimal"
+                value={rate}
+                onChange={(e) => setRate(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-gst">GST %</Label>
+              <Input
+                id="edit-item-gst"
+                inputMode="decimal"
+                value={gstPercent}
+                onChange={(e) => setGstPercent(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-item-remarks">Remarks</Label>
+              <Input
+                id="edit-item-remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button
+            disabled={pending || !description.trim() || !quantity}
+            onClick={() =>
+              onSubmit({
+                id: item.id,
+                description: description.trim(),
+                specification,
+                uom,
+                quantity,
+                wastage,
+                rate,
+                gstPercent,
+                remarks,
+              })
+            }
+          >
+            {pending ? "Saving…" : "Save changes"}
           </Button>
         </DialogFooter>
       </DialogContent>
