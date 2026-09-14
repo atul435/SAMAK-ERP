@@ -780,7 +780,9 @@ function InstallationCalculator({
       </p>
       <div className="mt-2 grid gap-2 sm:grid-cols-3">
         <div className="grid gap-1 sm:col-span-3">
-          <Label className="text-xs">Activity</Label>
+          <Label className="text-xs">
+            Activity (optional — leave blank to skip this calculator)
+          </Label>
           <Select value={activityCode} onValueChange={setActivityCode}>
             <SelectTrigger>
               <SelectValue placeholder="Select the closest work type" />
