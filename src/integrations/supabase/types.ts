@@ -4861,7 +4861,11 @@ export type Database = {
         | "store_manager"
         | "finance"
         | "hr"
-        | "client";
+        | "client"
+        | "maintenance_head"
+        | "regional_manager"
+        | "irrigation_technician"
+        | "maintenance_crew";
       approval_state:
         | "draft"
         | "submitted"
@@ -5019,6 +5023,10 @@ export const Constants = {
         "finance",
         "hr",
         "client",
+        "maintenance_head",
+        "regional_manager",
+        "irrigation_technician",
+        "maintenance_crew",
       ],
       approval_state: [
         "draft",

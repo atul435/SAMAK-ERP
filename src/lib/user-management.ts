@@ -105,6 +105,31 @@ export const ROLE_PROFILES: RoleProfile[] = [
     level: "Portal only",
     notes: "Cannot open the ERP. Sees their own portal records.",
   },
+  {
+    role: "maintenance_head",
+    display: "Maintenance Business Head",
+    level: "Landscape maintenance",
+    notes: "AMC resource allocation, service quality and contract P&L across all sites.",
+  },
+  {
+    role: "regional_manager",
+    display: "Regional Manager",
+    level: "Landscape maintenance",
+    notes: "Sites, supervisors, audits and escalation within a region.",
+  },
+  {
+    role: "irrigation_technician",
+    display: "Irrigation Technician",
+    level: "Landscape maintenance",
+    notes: "Zone testing and repair. Major spares and shutdowns need approval.",
+  },
+  {
+    role: "maintenance_crew",
+    display: "Maintenance Crew / Field Staff",
+    level: "Landscape maintenance",
+    notes:
+      "Assigned tasks, geo-tagged evidence and issue reporting. No rate, invoice or client edits.",
+  },
 ];
 
 export const PERMISSION_MODULES = [
