@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { draftInspectionSummary } from "@/lib/maintenance-ai.functions";
 import { PageHeader } from "@/components/common/PageHeader";
 import { EmptyState, ErrorState, LoadingState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
@@ -70,6 +72,9 @@ function InspectionsPage() {
   const [treatmentFor, setTreatmentFor] = useState<{ findingId: string; siteId: string } | null>(
     null,
   );
+  const [aiFor, setAiFor] = useState<string | null>(null);
+  const [draftText, setDraftText] = useState("");
+  const draftSummaryFn = useServerFn(draftInspectionSummary);
 
   const query = useQuery({
     queryKey: ["maintenance-inspections"],
@@ -183,6 +188,36 @@ function InspectionsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const draftSummary = useMutation({
+    mutationFn: (inspectionId: string) => draftSummaryFn({ data: { inspectionId } }),
+    onSuccess: (result) => {
+      const actions = result.recommendedActions.length
+        ? `\n\nRecommended next steps:\n${result.recommendedActions.map((a) => `- ${a}`).join("\n")}`
+        : "";
+      setDraftText(`${result.summary}${actions}`);
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setAiFor(null);
+    },
+  });
+
+  const saveNotes = useMutation({
+    mutationFn: async ({ id, notes }: { id: string; notes: string }) => {
+      const { error } = await supabase
+        .from("maintenance_inspections")
+        .update({ notes })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Summary saved to inspection notes");
+      setAiFor(null);
+      void queryClient.invalidateQueries({ queryKey: ["maintenance-inspections"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (query.isLoading) return <LoadingState />;
   if (query.isError) return <ErrorState message={(query.error as Error).message} />;
 
@@ -231,6 +266,19 @@ function InspectionsPage() {
                   {canEdit ? (
                     <Button variant="outline" size="sm" onClick={() => setFindingOpenFor(i.id)}>
                       Add finding
+                    </Button>
+                  ) : null}
+                  {canEdit && (i.inspection_findings ?? []).length > 0 ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setAiFor(i.id);
+                        setDraftText("");
+                        draftSummary.mutate(i.id);
+                      }}
+                    >
+                      Draft AI summary
                     </Button>
                   ) : null}
                   <Button
@@ -297,6 +345,39 @@ function InspectionsPage() {
             })
           }
         />
+      ) : null}
+
+      {aiFor ? (
+        <Dialog open onOpenChange={(o) => !o && setAiFor(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>AI-drafted summary</DialogTitle>
+              <DialogDescription>
+                Grounded in this inspection's logged findings only. Review and edit before saving —
+                it replaces the notes on this inspection.
+              </DialogDescription>
+            </DialogHeader>
+            {draftSummary.isPending ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">Drafting…</p>
+            ) : draftSummary.isError ? (
+              <p className="text-sm text-destructive">{(draftSummary.error as Error).message}</p>
+            ) : (
+              <Textarea
+                value={draftText}
+                onChange={(e) => setDraftText(e.target.value)}
+                rows={10}
+              />
+            )}
+            <DialogFooter>
+              <Button
+                disabled={draftSummary.isPending || saveNotes.isPending || !draftText.trim()}
+                onClick={() => saveNotes.mutate({ id: aiFor, notes: draftText.trim() })}
+              >
+                {saveNotes.isPending ? "Saving…" : "Save as inspection notes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </>
   );
