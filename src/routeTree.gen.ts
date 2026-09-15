@@ -63,6 +63,7 @@ import { Route as AuthenticatedTenderBoqTenderBoqIdRouteImport } from './routes/
 import { Route as PortalPortalIndexRouteImport } from './routes/_portal/portal.index'
 import { Route as PortalPortalBillingRouteImport } from './routes/_portal/portal.billing'
 import { Route as PortalPortalBillsRouteImport } from './routes/_portal/portal.bills'
+import { Route as PortalPortalMaintenanceRouteImport } from './routes/_portal/portal.maintenance'
 import { Route as PortalPortalOrdersRouteImport } from './routes/_portal/portal.orders'
 import { Route as PortalPortalProjectsRouteImport } from './routes/_portal/portal.projects'
 import { Route as ApiPublicTendersIngestRouteImport } from './routes/api/public/tenders-ingest'
@@ -368,6 +369,11 @@ const PortalPortalBillsRoute = PortalPortalBillsRouteImport.update({
   path: '/portal/bills',
   getParentRoute: () => PortalRouteRoute,
 } as any)
+const PortalPortalMaintenanceRoute = PortalPortalMaintenanceRouteImport.update({
+  id: '/portal/maintenance',
+  path: '/portal/maintenance',
+  getParentRoute: () => PortalRouteRoute,
+} as any)
 const PortalPortalOrdersRoute = PortalPortalOrdersRouteImport.update({
   id: '/portal/orders',
   path: '/portal/orders',
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/portal/billing': typeof PortalPortalBillingRoute
   '/portal/bills': typeof PortalPortalBillsRoute
+  '/portal/maintenance': typeof PortalPortalMaintenanceRoute
   '/portal/orders': typeof PortalPortalOrdersRoute
   '/portal/projects': typeof PortalPortalProjectsRoute
   '/api/public/tenders-ingest': typeof ApiPublicTendersIngestRoute
@@ -494,6 +501,7 @@ export interface FileRoutesByTo {
   '/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/portal/billing': typeof PortalPortalBillingRoute
   '/portal/bills': typeof PortalPortalBillsRoute
+  '/portal/maintenance': typeof PortalPortalMaintenanceRoute
   '/portal/orders': typeof PortalPortalOrdersRoute
   '/portal/projects': typeof PortalPortalProjectsRoute
   '/api/public/tenders-ingest': typeof ApiPublicTendersIngestRoute
@@ -556,6 +564,7 @@ export interface FileRoutesById {
   '/_authenticated/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/_portal/portal/billing': typeof PortalPortalBillingRoute
   '/_portal/portal/bills': typeof PortalPortalBillsRoute
+  '/_portal/portal/maintenance': typeof PortalPortalMaintenanceRoute
   '/_portal/portal/orders': typeof PortalPortalOrdersRoute
   '/_portal/portal/projects': typeof PortalPortalProjectsRoute
   '/api/public/tenders-ingest': typeof ApiPublicTendersIngestRoute
@@ -617,6 +626,7 @@ export interface FileRouteTypes {
     | '/tender-boq/$tenderBoqId'
     | '/portal/billing'
     | '/portal/bills'
+    | '/portal/maintenance'
     | '/portal/orders'
     | '/portal/projects'
     | '/api/public/tenders-ingest'
@@ -676,6 +686,7 @@ export interface FileRouteTypes {
     | '/tender-boq/$tenderBoqId'
     | '/portal/billing'
     | '/portal/bills'
+    | '/portal/maintenance'
     | '/portal/orders'
     | '/portal/projects'
     | '/api/public/tenders-ingest'
@@ -737,6 +748,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tender-boq/$tenderBoqId'
     | '/_portal/portal/billing'
     | '/_portal/portal/bills'
+    | '/_portal/portal/maintenance'
     | '/_portal/portal/orders'
     | '/_portal/portal/projects'
     | '/api/public/tenders-ingest'
@@ -1148,6 +1160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalPortalBillsRouteImport
       parentRoute: typeof PortalRouteRoute
     }
+    '/_portal/portal/maintenance': {
+      id: '/_portal/portal/maintenance'
+      path: '/portal/maintenance'
+      fullPath: '/portal/maintenance'
+      preLoaderRoute: typeof PortalPortalMaintenanceRouteImport
+      parentRoute: typeof PortalRouteRoute
+    }
     '/_portal/portal/orders': {
       id: '/_portal/portal/orders'
       path: '/portal/orders'
@@ -1301,6 +1320,7 @@ const AuthenticatedRouteRouteWithChildren =
 interface PortalRouteRouteChildren {
   PortalPortalBillingRoute: typeof PortalPortalBillingRoute
   PortalPortalBillsRoute: typeof PortalPortalBillsRoute
+  PortalPortalMaintenanceRoute: typeof PortalPortalMaintenanceRoute
   PortalPortalOrdersRoute: typeof PortalPortalOrdersRoute
   PortalPortalProjectsRoute: typeof PortalPortalProjectsRoute
   PortalPortalIndexRoute: typeof PortalPortalIndexRoute
@@ -1309,6 +1329,7 @@ interface PortalRouteRouteChildren {
 const PortalRouteRouteChildren: PortalRouteRouteChildren = {
   PortalPortalBillingRoute: PortalPortalBillingRoute,
   PortalPortalBillsRoute: PortalPortalBillsRoute,
+  PortalPortalMaintenanceRoute: PortalPortalMaintenanceRoute,
   PortalPortalOrdersRoute: PortalPortalOrdersRoute,
   PortalPortalProjectsRoute: PortalPortalProjectsRoute,
   PortalPortalIndexRoute: PortalPortalIndexRoute,

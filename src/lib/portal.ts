@@ -22,6 +22,7 @@ export async function resolveLanding(): Promise<"/portal" | "/dashboard"> {
 export const CLIENT_PORTAL_NAV = [
   { label: "Overview", to: "/portal" },
   { label: "Projects", to: "/portal/projects" },
+  { label: "Maintenance", to: "/portal/maintenance" },
   { label: "Invoices & receipts", to: "/portal/billing" },
 ] as const;
 
