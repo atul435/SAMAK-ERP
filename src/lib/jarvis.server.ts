@@ -9,7 +9,7 @@ export type JarvisClient = SupabaseClient<Database>;
  * Every read uses the caller's own RLS-scoped client, so the assistant can
  * never see a record the signed-in user could not open themselves.
  */
-export async function buildSnapshot(supabase: JarvisClient, page: string | null) {
+export async function buildSnapshot(supabase: JarvisClient, page: string | null, userId: string) {
   const [
     employee,
     projects,
@@ -32,6 +32,7 @@ export async function buildSnapshot(supabase: JarvisClient, page: string | null)
     supabase
       .from("employees")
       .select("full_name, designation, primary_role, company_id")
+      .eq("user_id", userId)
       .maybeSingle(),
     supabase
       .from("projects")

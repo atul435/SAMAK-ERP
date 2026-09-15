@@ -70,7 +70,7 @@ export const askJarvis = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => askSchema.parse(input))
   .handler(async ({ data, context }): Promise<JarvisAnswer> => {
     const supabase = context.supabase as unknown as JarvisClient;
-    const snapshot = await buildSnapshot(supabase, data.page ?? null);
+    const snapshot = await buildSnapshot(supabase, data.page ?? null, context.userId);
 
     const system = `${JARVIS_RULES}
 
@@ -130,7 +130,7 @@ export const jarvisBriefing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<JarvisBriefing> => {
     const supabase = context.supabase as unknown as JarvisClient;
-    const snapshot = await buildSnapshot(supabase, "/jarvis");
+    const snapshot = await buildSnapshot(supabase, "/jarvis", context.userId);
 
     const system = `${JARVIS_RULES}
 
@@ -182,7 +182,7 @@ export const jarvisDecisions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ decisions: JarvisDecision[]; generatedAt: string }> => {
     const supabase = context.supabase as unknown as JarvisClient;
-    const snapshot = await buildSnapshot(supabase, "/jarvis");
+    const snapshot = await buildSnapshot(supabase, "/jarvis", context.userId);
     const decisions = snapshot.decisions as JarvisDecision[];
     if (!decisions.length) return { decisions, generatedAt: snapshot.generatedAt };
 
