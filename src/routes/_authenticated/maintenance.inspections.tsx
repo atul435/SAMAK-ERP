@@ -67,6 +67,9 @@ function InspectionsPage() {
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [findingOpenFor, setFindingOpenFor] = useState<string | null>(null);
+  const [treatmentFor, setTreatmentFor] = useState<{ findingId: string; siteId: string } | null>(
+    null,
+  );
 
   const query = useQuery({
     queryKey: ["maintenance-inspections"],
@@ -74,7 +77,7 @@ function InspectionsPage() {
       const { data, error } = await supabase
         .from("maintenance_inspections")
         .select(
-          "id, inspection_date, overall_score, notes, maintenance_sites(name), inspection_findings(id, category, severity, notes)",
+          "id, inspection_date, overall_score, notes, site_id, maintenance_sites(name), inspection_findings(id, category, severity, notes)",
         )
         .order("inspection_date", { ascending: false })
         .limit(100);
@@ -151,6 +154,35 @@ function InspectionsPage() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const logTreatment = useMutation({
+    mutationFn: async (form: {
+      findingId: string;
+      siteId: string;
+      product: string;
+      dose: string;
+      applicationArea: string;
+      requiresApproval: boolean;
+    }) => {
+      const { error } = await supabase.from("plant_treatments").insert({
+        site_id: form.siteId,
+        finding_id: form.findingId,
+        product: form.product.trim() || null,
+        dose: form.dose.trim() || null,
+        application_area: form.applicationArea.trim() || null,
+        operator_employee_id: employee?.id ?? null,
+        requires_approval: form.requiresApproval,
+        outcome: "pending",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Treatment logged — see Maintenance → Treatments to add safety notes");
+      setTreatmentFor(null);
+      void queryClient.invalidateQueries({ queryKey: ["plant-treatments"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   if (query.isLoading) return <LoadingState />;
   if (query.isError) return <ErrorState message={(query.error as Error).message} />;
 
@@ -215,13 +247,25 @@ function InspectionsPage() {
               {expanded === i.id && (i.inspection_findings ?? []).length > 0 ? (
                 <ul className="mt-3 space-y-2 border-t border-border pt-3">
                   {(i.inspection_findings ?? []).map((f) => (
-                    <li key={f.id} className="text-sm">
-                      <span className="font-medium">{titleCase(f.category)}</span>{" "}
-                      <span className="text-xs text-muted-foreground">
-                        ({titleCase(f.severity)})
-                      </span>
-                      {f.notes ? (
-                        <span className="block text-xs text-muted-foreground">{f.notes}</span>
+                    <li key={f.id} className="flex items-start justify-between gap-3 text-sm">
+                      <div>
+                        <span className="font-medium">{titleCase(f.category)}</span>{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ({titleCase(f.severity)})
+                        </span>
+                        {f.notes ? (
+                          <span className="block text-xs text-muted-foreground">{f.notes}</span>
+                        ) : null}
+                      </div>
+                      {canEdit ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="shrink-0"
+                          onClick={() => setTreatmentFor({ findingId: f.id, siteId: i.site_id })}
+                        >
+                          Log treatment
+                        </Button>
                       ) : null}
                     </li>
                   ))}
@@ -238,6 +282,20 @@ function InspectionsPage() {
           pending={addFinding.isPending}
           onOpenChange={(o) => !o && setFindingOpenFor(null)}
           onSubmit={(f) => addFinding.mutate(f)}
+        />
+      ) : null}
+
+      {treatmentFor ? (
+        <LogTreatmentDialog
+          pending={logTreatment.isPending}
+          onOpenChange={(o) => !o && setTreatmentFor(null)}
+          onSubmit={(f) =>
+            logTreatment.mutate({
+              findingId: treatmentFor.findingId,
+              siteId: treatmentFor.siteId,
+              ...f,
+            })
+          }
         />
       ) : null}
     </>
@@ -433,6 +491,86 @@ function AddFindingDialog({
             }
           >
             {pending ? "Adding…" : "Add finding"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LogTreatmentDialog({
+  pending,
+  onOpenChange,
+  onSubmit,
+}: {
+  pending: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (form: {
+    product: string;
+    dose: string;
+    applicationArea: string;
+    requiresApproval: boolean;
+  }) => void;
+}) {
+  const [product, setProduct] = useState("");
+  const [dose, setDose] = useState("");
+  const [applicationArea, setApplicationArea] = useState("");
+  const [requiresApproval, setRequiresApproval] = useState(false);
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Log treatment</DialogTitle>
+          <DialogDescription>
+            Linked to this finding. Add safety notes and weather from Maintenance → Treatments.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="treat-find-product">Product</Label>
+              <Input
+                id="treat-find-product"
+                value={product}
+                onChange={(e) => setProduct(e.target.value)}
+                placeholder="Neem oil / NPK 19:19:19…"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="treat-find-dose">Dose</Label>
+              <Input id="treat-find-dose" value={dose} onChange={(e) => setDose(e.target.value)} />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="treat-find-area">Application area</Label>
+            <Input
+              id="treat-find-area"
+              value={applicationArea}
+              onChange={(e) => setApplicationArea(e.target.value)}
+            />
+          </div>
+          <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 accent-primary"
+              checked={requiresApproval}
+              onChange={(e) => setRequiresApproval(e.target.checked)}
+            />
+            <span>
+              Restricted-use product
+              <span className="block text-xs text-muted-foreground">
+                Needs approval before application.
+              </span>
+            </span>
+          </label>
+        </div>
+        <DialogFooter>
+          <Button
+            disabled={pending}
+            onClick={() => onSubmit({ product, dose, applicationArea, requiresApproval })}
+          >
+            {pending ? "Logging…" : "Log treatment"}
           </Button>
         </DialogFooter>
       </DialogContent>

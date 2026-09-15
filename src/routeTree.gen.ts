@@ -42,9 +42,12 @@ import { Route as AuthenticatedJarvisLogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
 import { Route as AuthenticatedMaintenanceContractsRouteImport } from './routes/_authenticated/maintenance.contracts'
 import { Route as AuthenticatedMaintenanceInspectionsRouteImport } from './routes/_authenticated/maintenance.inspections'
+import { Route as AuthenticatedMaintenanceIrrigationRouteImport } from './routes/_authenticated/maintenance.irrigation'
 import { Route as AuthenticatedMaintenanceIssuesRouteImport } from './routes/_authenticated/maintenance.issues'
+import { Route as AuthenticatedMaintenanceSchedulesRouteImport } from './routes/_authenticated/maintenance.schedules'
 import { Route as AuthenticatedMaintenanceTasksRouteImport } from './routes/_authenticated/maintenance.tasks'
 import { Route as AuthenticatedMaintenanceTemplatesRouteImport } from './routes/_authenticated/maintenance.templates'
+import { Route as AuthenticatedMaintenanceTreatmentsRouteImport } from './routes/_authenticated/maintenance.treatments'
 import { Route as AuthenticatedMastersMaterialsRouteImport } from './routes/_authenticated/masters.materials'
 import { Route as AuthenticatedMastersPlantsRouteImport } from './routes/_authenticated/masters.plants'
 import { Route as AuthenticatedNurseryIndexRouteImport } from './routes/_authenticated/nursery.index'
@@ -243,10 +246,22 @@ const AuthenticatedMaintenanceInspectionsRoute =
     path: '/maintenance/inspections',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMaintenanceIrrigationRoute =
+  AuthenticatedMaintenanceIrrigationRouteImport.update({
+    id: '/maintenance/irrigation',
+    path: '/maintenance/irrigation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMaintenanceIssuesRoute =
   AuthenticatedMaintenanceIssuesRouteImport.update({
     id: '/maintenance/issues',
     path: '/maintenance/issues',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceSchedulesRoute =
+  AuthenticatedMaintenanceSchedulesRouteImport.update({
+    id: '/maintenance/schedules',
+    path: '/maintenance/schedules',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMaintenanceTasksRoute =
@@ -259,6 +274,12 @@ const AuthenticatedMaintenanceTemplatesRoute =
   AuthenticatedMaintenanceTemplatesRouteImport.update({
     id: '/maintenance/templates',
     path: '/maintenance/templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceTreatmentsRoute =
+  AuthenticatedMaintenanceTreatmentsRouteImport.update({
+    id: '/maintenance/treatments',
+    path: '/maintenance/treatments',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMastersMaterialsRoute =
@@ -400,9 +421,12 @@ export interface FileRoutesByFullPath {
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
   '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
   '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
+  '/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -456,9 +480,12 @@ export interface FileRoutesByTo {
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
   '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
   '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
+  '/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -515,9 +542,12 @@ export interface FileRoutesById {
   '/_authenticated/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/_authenticated/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
   '/_authenticated/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/_authenticated/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
   '/_authenticated/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/_authenticated/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
   '/_authenticated/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/_authenticated/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
+  '/_authenticated/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
   '/_authenticated/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/_authenticated/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/_authenticated/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -573,9 +603,12 @@ export interface FileRouteTypes {
     | '/jarvis/log'
     | '/maintenance/contracts'
     | '/maintenance/inspections'
+    | '/maintenance/irrigation'
     | '/maintenance/issues'
+    | '/maintenance/schedules'
     | '/maintenance/tasks'
     | '/maintenance/templates'
+    | '/maintenance/treatments'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -629,9 +662,12 @@ export interface FileRouteTypes {
     | '/jarvis/log'
     | '/maintenance/contracts'
     | '/maintenance/inspections'
+    | '/maintenance/irrigation'
     | '/maintenance/issues'
+    | '/maintenance/schedules'
     | '/maintenance/tasks'
     | '/maintenance/templates'
+    | '/maintenance/treatments'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -687,9 +723,12 @@ export interface FileRouteTypes {
     | '/_authenticated/jarvis/log'
     | '/_authenticated/maintenance/contracts'
     | '/_authenticated/maintenance/inspections'
+    | '/_authenticated/maintenance/irrigation'
     | '/_authenticated/maintenance/issues'
+    | '/_authenticated/maintenance/schedules'
     | '/_authenticated/maintenance/tasks'
     | '/_authenticated/maintenance/templates'
+    | '/_authenticated/maintenance/treatments'
     | '/_authenticated/masters/materials'
     | '/_authenticated/masters/plants'
     | '/_authenticated/procurement/$poId'
@@ -962,11 +1001,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceInspectionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/maintenance/irrigation': {
+      id: '/_authenticated/maintenance/irrigation'
+      path: '/maintenance/irrigation'
+      fullPath: '/maintenance/irrigation'
+      preLoaderRoute: typeof AuthenticatedMaintenanceIrrigationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/maintenance/issues': {
       id: '/_authenticated/maintenance/issues'
       path: '/maintenance/issues'
       fullPath: '/maintenance/issues'
       preLoaderRoute: typeof AuthenticatedMaintenanceIssuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/schedules': {
+      id: '/_authenticated/maintenance/schedules'
+      path: '/maintenance/schedules'
+      fullPath: '/maintenance/schedules'
+      preLoaderRoute: typeof AuthenticatedMaintenanceSchedulesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/maintenance/tasks': {
@@ -981,6 +1034,13 @@ declare module '@tanstack/react-router' {
       path: '/maintenance/templates'
       fullPath: '/maintenance/templates'
       preLoaderRoute: typeof AuthenticatedMaintenanceTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/treatments': {
+      id: '/_authenticated/maintenance/treatments'
+      path: '/maintenance/treatments'
+      fullPath: '/maintenance/treatments'
+      preLoaderRoute: typeof AuthenticatedMaintenanceTreatmentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/masters/materials': {
@@ -1147,9 +1207,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJarvisLogRoute: typeof AuthenticatedJarvisLogRoute
   AuthenticatedMaintenanceContractsRoute: typeof AuthenticatedMaintenanceContractsRoute
   AuthenticatedMaintenanceInspectionsRoute: typeof AuthenticatedMaintenanceInspectionsRoute
+  AuthenticatedMaintenanceIrrigationRoute: typeof AuthenticatedMaintenanceIrrigationRoute
   AuthenticatedMaintenanceIssuesRoute: typeof AuthenticatedMaintenanceIssuesRoute
+  AuthenticatedMaintenanceSchedulesRoute: typeof AuthenticatedMaintenanceSchedulesRoute
   AuthenticatedMaintenanceTasksRoute: typeof AuthenticatedMaintenanceTasksRoute
   AuthenticatedMaintenanceTemplatesRoute: typeof AuthenticatedMaintenanceTemplatesRoute
+  AuthenticatedMaintenanceTreatmentsRoute: typeof AuthenticatedMaintenanceTreatmentsRoute
   AuthenticatedMastersMaterialsRoute: typeof AuthenticatedMastersMaterialsRoute
   AuthenticatedMastersPlantsRoute: typeof AuthenticatedMastersPlantsRoute
   AuthenticatedProcurementPoIdRoute: typeof AuthenticatedProcurementPoIdRoute
@@ -1196,10 +1259,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMaintenanceContractsRoute,
   AuthenticatedMaintenanceInspectionsRoute:
     AuthenticatedMaintenanceInspectionsRoute,
+  AuthenticatedMaintenanceIrrigationRoute:
+    AuthenticatedMaintenanceIrrigationRoute,
   AuthenticatedMaintenanceIssuesRoute: AuthenticatedMaintenanceIssuesRoute,
+  AuthenticatedMaintenanceSchedulesRoute:
+    AuthenticatedMaintenanceSchedulesRoute,
   AuthenticatedMaintenanceTasksRoute: AuthenticatedMaintenanceTasksRoute,
   AuthenticatedMaintenanceTemplatesRoute:
     AuthenticatedMaintenanceTemplatesRoute,
+  AuthenticatedMaintenanceTreatmentsRoute:
+    AuthenticatedMaintenanceTreatmentsRoute,
   AuthenticatedMastersMaterialsRoute: AuthenticatedMastersMaterialsRoute,
   AuthenticatedMastersPlantsRoute: AuthenticatedMastersPlantsRoute,
   AuthenticatedProcurementPoIdRoute: AuthenticatedProcurementPoIdRoute,
