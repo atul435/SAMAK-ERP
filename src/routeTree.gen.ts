@@ -39,6 +39,12 @@ import { Route as AuthenticatedHrIndexRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedInventoryIndexRouteImport } from './routes/_authenticated/inventory.index'
 import { Route as AuthenticatedJarvisIndexRouteImport } from './routes/_authenticated/jarvis.index'
 import { Route as AuthenticatedJarvisLogRouteImport } from './routes/_authenticated/jarvis.log'
+import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
+import { Route as AuthenticatedMaintenanceContractsRouteImport } from './routes/_authenticated/maintenance.contracts'
+import { Route as AuthenticatedMaintenanceInspectionsRouteImport } from './routes/_authenticated/maintenance.inspections'
+import { Route as AuthenticatedMaintenanceIssuesRouteImport } from './routes/_authenticated/maintenance.issues'
+import { Route as AuthenticatedMaintenanceTasksRouteImport } from './routes/_authenticated/maintenance.tasks'
+import { Route as AuthenticatedMaintenanceTemplatesRouteImport } from './routes/_authenticated/maintenance.templates'
 import { Route as AuthenticatedMastersMaterialsRouteImport } from './routes/_authenticated/masters.materials'
 import { Route as AuthenticatedMastersPlantsRouteImport } from './routes/_authenticated/masters.plants'
 import { Route as AuthenticatedNurseryIndexRouteImport } from './routes/_authenticated/nursery.index'
@@ -57,6 +63,8 @@ import { Route as PortalPortalBillsRouteImport } from './routes/_portal/portal.b
 import { Route as PortalPortalOrdersRouteImport } from './routes/_portal/portal.orders'
 import { Route as PortalPortalProjectsRouteImport } from './routes/_portal/portal.projects'
 import { Route as ApiPublicTendersIngestRouteImport } from './routes/api/public/tenders-ingest'
+import { Route as AuthenticatedMaintenanceSitesIndexRouteImport } from './routes/_authenticated/maintenance.sites.index'
+import { Route as AuthenticatedMaintenanceSitesSiteIdRouteImport } from './routes/_authenticated/maintenance.sites.$siteId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -217,6 +225,42 @@ const AuthenticatedJarvisLogRoute = AuthenticatedJarvisLogRouteImport.update({
   path: '/jarvis/log',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMaintenanceIndexRoute =
+  AuthenticatedMaintenanceIndexRouteImport.update({
+    id: '/maintenance/',
+    path: '/maintenance/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceContractsRoute =
+  AuthenticatedMaintenanceContractsRouteImport.update({
+    id: '/maintenance/contracts',
+    path: '/maintenance/contracts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceInspectionsRoute =
+  AuthenticatedMaintenanceInspectionsRouteImport.update({
+    id: '/maintenance/inspections',
+    path: '/maintenance/inspections',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceIssuesRoute =
+  AuthenticatedMaintenanceIssuesRouteImport.update({
+    id: '/maintenance/issues',
+    path: '/maintenance/issues',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceTasksRoute =
+  AuthenticatedMaintenanceTasksRouteImport.update({
+    id: '/maintenance/tasks',
+    path: '/maintenance/tasks',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceTemplatesRoute =
+  AuthenticatedMaintenanceTemplatesRouteImport.update({
+    id: '/maintenance/templates',
+    path: '/maintenance/templates',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMastersMaterialsRoute =
   AuthenticatedMastersMaterialsRouteImport.update({
     id: '/masters/materials',
@@ -318,6 +362,18 @@ const ApiPublicTendersIngestRoute = ApiPublicTendersIngestRouteImport.update({
   path: '/api/public/tenders-ingest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMaintenanceSitesIndexRoute =
+  AuthenticatedMaintenanceSitesIndexRouteImport.update({
+    id: '/maintenance/sites/',
+    path: '/maintenance/sites/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceSitesSiteIdRoute =
+  AuthenticatedMaintenanceSitesSiteIdRouteImport.update({
+    id: '/maintenance/sites/$siteId',
+    path: '/maintenance/sites/$siteId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -342,6 +398,11 @@ export interface FileRoutesByFullPath {
   '/design/$designId': typeof AuthenticatedDesignDesignIdRoute
   '/finance/$invoiceId': typeof AuthenticatedFinanceInvoiceIdRoute
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
+  '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
+  '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -359,6 +420,7 @@ export interface FileRoutesByFullPath {
   '/hr/': typeof AuthenticatedHrIndexRoute
   '/inventory/': typeof AuthenticatedInventoryIndexRoute
   '/jarvis/': typeof AuthenticatedJarvisIndexRoute
+  '/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/nursery/': typeof AuthenticatedNurseryIndexRoute
   '/plantiq/': typeof AuthenticatedPlantiqIndexRoute
   '/procurement/': typeof AuthenticatedProcurementIndexRoute
@@ -366,6 +428,8 @@ export interface FileRoutesByFullPath {
   '/site/': typeof AuthenticatedSiteIndexRoute
   '/tender-boq/': typeof AuthenticatedTenderBoqIndexRoute
   '/portal/': typeof PortalPortalIndexRoute
+  '/maintenance/sites/$siteId': typeof AuthenticatedMaintenanceSitesSiteIdRoute
+  '/maintenance/sites/': typeof AuthenticatedMaintenanceSitesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -390,6 +454,11 @@ export interface FileRoutesByTo {
   '/design/$designId': typeof AuthenticatedDesignDesignIdRoute
   '/finance/$invoiceId': typeof AuthenticatedFinanceInvoiceIdRoute
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
+  '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
+  '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -407,6 +476,7 @@ export interface FileRoutesByTo {
   '/hr': typeof AuthenticatedHrIndexRoute
   '/inventory': typeof AuthenticatedInventoryIndexRoute
   '/jarvis': typeof AuthenticatedJarvisIndexRoute
+  '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
   '/nursery': typeof AuthenticatedNurseryIndexRoute
   '/plantiq': typeof AuthenticatedPlantiqIndexRoute
   '/procurement': typeof AuthenticatedProcurementIndexRoute
@@ -414,6 +484,8 @@ export interface FileRoutesByTo {
   '/site': typeof AuthenticatedSiteIndexRoute
   '/tender-boq': typeof AuthenticatedTenderBoqIndexRoute
   '/portal': typeof PortalPortalIndexRoute
+  '/maintenance/sites/$siteId': typeof AuthenticatedMaintenanceSitesSiteIdRoute
+  '/maintenance/sites': typeof AuthenticatedMaintenanceSitesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -441,6 +513,11 @@ export interface FileRoutesById {
   '/_authenticated/design/$designId': typeof AuthenticatedDesignDesignIdRoute
   '/_authenticated/finance/$invoiceId': typeof AuthenticatedFinanceInvoiceIdRoute
   '/_authenticated/jarvis/log': typeof AuthenticatedJarvisLogRoute
+  '/_authenticated/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/_authenticated/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
+  '/_authenticated/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/_authenticated/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
+  '/_authenticated/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/_authenticated/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/_authenticated/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/_authenticated/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -458,6 +535,7 @@ export interface FileRoutesById {
   '/_authenticated/hr/': typeof AuthenticatedHrIndexRoute
   '/_authenticated/inventory/': typeof AuthenticatedInventoryIndexRoute
   '/_authenticated/jarvis/': typeof AuthenticatedJarvisIndexRoute
+  '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/_authenticated/nursery/': typeof AuthenticatedNurseryIndexRoute
   '/_authenticated/plantiq/': typeof AuthenticatedPlantiqIndexRoute
   '/_authenticated/procurement/': typeof AuthenticatedProcurementIndexRoute
@@ -465,6 +543,8 @@ export interface FileRoutesById {
   '/_authenticated/site/': typeof AuthenticatedSiteIndexRoute
   '/_authenticated/tender-boq/': typeof AuthenticatedTenderBoqIndexRoute
   '/_portal/portal/': typeof PortalPortalIndexRoute
+  '/_authenticated/maintenance/sites/$siteId': typeof AuthenticatedMaintenanceSitesSiteIdRoute
+  '/_authenticated/maintenance/sites/': typeof AuthenticatedMaintenanceSitesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -491,6 +571,11 @@ export interface FileRouteTypes {
     | '/design/$designId'
     | '/finance/$invoiceId'
     | '/jarvis/log'
+    | '/maintenance/contracts'
+    | '/maintenance/inspections'
+    | '/maintenance/issues'
+    | '/maintenance/tasks'
+    | '/maintenance/templates'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -508,6 +593,7 @@ export interface FileRouteTypes {
     | '/hr/'
     | '/inventory/'
     | '/jarvis/'
+    | '/maintenance/'
     | '/nursery/'
     | '/plantiq/'
     | '/procurement/'
@@ -515,6 +601,8 @@ export interface FileRouteTypes {
     | '/site/'
     | '/tender-boq/'
     | '/portal/'
+    | '/maintenance/sites/$siteId'
+    | '/maintenance/sites/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -539,6 +627,11 @@ export interface FileRouteTypes {
     | '/design/$designId'
     | '/finance/$invoiceId'
     | '/jarvis/log'
+    | '/maintenance/contracts'
+    | '/maintenance/inspections'
+    | '/maintenance/issues'
+    | '/maintenance/tasks'
+    | '/maintenance/templates'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -556,6 +649,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/inventory'
     | '/jarvis'
+    | '/maintenance'
     | '/nursery'
     | '/plantiq'
     | '/procurement'
@@ -563,6 +657,8 @@ export interface FileRouteTypes {
     | '/site'
     | '/tender-boq'
     | '/portal'
+    | '/maintenance/sites/$siteId'
+    | '/maintenance/sites'
   id:
     | '__root__'
     | '/'
@@ -589,6 +685,11 @@ export interface FileRouteTypes {
     | '/_authenticated/design/$designId'
     | '/_authenticated/finance/$invoiceId'
     | '/_authenticated/jarvis/log'
+    | '/_authenticated/maintenance/contracts'
+    | '/_authenticated/maintenance/inspections'
+    | '/_authenticated/maintenance/issues'
+    | '/_authenticated/maintenance/tasks'
+    | '/_authenticated/maintenance/templates'
     | '/_authenticated/masters/materials'
     | '/_authenticated/masters/plants'
     | '/_authenticated/procurement/$poId'
@@ -606,6 +707,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hr/'
     | '/_authenticated/inventory/'
     | '/_authenticated/jarvis/'
+    | '/_authenticated/maintenance/'
     | '/_authenticated/nursery/'
     | '/_authenticated/plantiq/'
     | '/_authenticated/procurement/'
@@ -613,6 +715,8 @@ export interface FileRouteTypes {
     | '/_authenticated/site/'
     | '/_authenticated/tender-boq/'
     | '/_portal/portal/'
+    | '/_authenticated/maintenance/sites/$siteId'
+    | '/_authenticated/maintenance/sites/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -837,6 +941,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJarvisLogRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/maintenance/': {
+      id: '/_authenticated/maintenance/'
+      path: '/maintenance'
+      fullPath: '/maintenance/'
+      preLoaderRoute: typeof AuthenticatedMaintenanceIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/contracts': {
+      id: '/_authenticated/maintenance/contracts'
+      path: '/maintenance/contracts'
+      fullPath: '/maintenance/contracts'
+      preLoaderRoute: typeof AuthenticatedMaintenanceContractsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/inspections': {
+      id: '/_authenticated/maintenance/inspections'
+      path: '/maintenance/inspections'
+      fullPath: '/maintenance/inspections'
+      preLoaderRoute: typeof AuthenticatedMaintenanceInspectionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/issues': {
+      id: '/_authenticated/maintenance/issues'
+      path: '/maintenance/issues'
+      fullPath: '/maintenance/issues'
+      preLoaderRoute: typeof AuthenticatedMaintenanceIssuesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/tasks': {
+      id: '/_authenticated/maintenance/tasks'
+      path: '/maintenance/tasks'
+      fullPath: '/maintenance/tasks'
+      preLoaderRoute: typeof AuthenticatedMaintenanceTasksRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/templates': {
+      id: '/_authenticated/maintenance/templates'
+      path: '/maintenance/templates'
+      fullPath: '/maintenance/templates'
+      preLoaderRoute: typeof AuthenticatedMaintenanceTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/masters/materials': {
       id: '/_authenticated/masters/materials'
       path: '/masters/materials'
@@ -963,6 +1109,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTendersIngestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/maintenance/sites/': {
+      id: '/_authenticated/maintenance/sites/'
+      path: '/maintenance/sites'
+      fullPath: '/maintenance/sites/'
+      preLoaderRoute: typeof AuthenticatedMaintenanceSitesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/sites/$siteId': {
+      id: '/_authenticated/maintenance/sites/$siteId'
+      path: '/maintenance/sites/$siteId'
+      fullPath: '/maintenance/sites/$siteId'
+      preLoaderRoute: typeof AuthenticatedMaintenanceSitesSiteIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -985,6 +1145,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDesignDesignIdRoute: typeof AuthenticatedDesignDesignIdRoute
   AuthenticatedFinanceInvoiceIdRoute: typeof AuthenticatedFinanceInvoiceIdRoute
   AuthenticatedJarvisLogRoute: typeof AuthenticatedJarvisLogRoute
+  AuthenticatedMaintenanceContractsRoute: typeof AuthenticatedMaintenanceContractsRoute
+  AuthenticatedMaintenanceInspectionsRoute: typeof AuthenticatedMaintenanceInspectionsRoute
+  AuthenticatedMaintenanceIssuesRoute: typeof AuthenticatedMaintenanceIssuesRoute
+  AuthenticatedMaintenanceTasksRoute: typeof AuthenticatedMaintenanceTasksRoute
+  AuthenticatedMaintenanceTemplatesRoute: typeof AuthenticatedMaintenanceTemplatesRoute
   AuthenticatedMastersMaterialsRoute: typeof AuthenticatedMastersMaterialsRoute
   AuthenticatedMastersPlantsRoute: typeof AuthenticatedMastersPlantsRoute
   AuthenticatedProcurementPoIdRoute: typeof AuthenticatedProcurementPoIdRoute
@@ -997,12 +1162,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHrIndexRoute: typeof AuthenticatedHrIndexRoute
   AuthenticatedInventoryIndexRoute: typeof AuthenticatedInventoryIndexRoute
   AuthenticatedJarvisIndexRoute: typeof AuthenticatedJarvisIndexRoute
+  AuthenticatedMaintenanceIndexRoute: typeof AuthenticatedMaintenanceIndexRoute
   AuthenticatedNurseryIndexRoute: typeof AuthenticatedNurseryIndexRoute
   AuthenticatedPlantiqIndexRoute: typeof AuthenticatedPlantiqIndexRoute
   AuthenticatedProcurementIndexRoute: typeof AuthenticatedProcurementIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedSiteIndexRoute: typeof AuthenticatedSiteIndexRoute
   AuthenticatedTenderBoqIndexRoute: typeof AuthenticatedTenderBoqIndexRoute
+  AuthenticatedMaintenanceSitesSiteIdRoute: typeof AuthenticatedMaintenanceSitesSiteIdRoute
+  AuthenticatedMaintenanceSitesIndexRoute: typeof AuthenticatedMaintenanceSitesIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1024,6 +1192,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDesignDesignIdRoute: AuthenticatedDesignDesignIdRoute,
   AuthenticatedFinanceInvoiceIdRoute: AuthenticatedFinanceInvoiceIdRoute,
   AuthenticatedJarvisLogRoute: AuthenticatedJarvisLogRoute,
+  AuthenticatedMaintenanceContractsRoute:
+    AuthenticatedMaintenanceContractsRoute,
+  AuthenticatedMaintenanceInspectionsRoute:
+    AuthenticatedMaintenanceInspectionsRoute,
+  AuthenticatedMaintenanceIssuesRoute: AuthenticatedMaintenanceIssuesRoute,
+  AuthenticatedMaintenanceTasksRoute: AuthenticatedMaintenanceTasksRoute,
+  AuthenticatedMaintenanceTemplatesRoute:
+    AuthenticatedMaintenanceTemplatesRoute,
   AuthenticatedMastersMaterialsRoute: AuthenticatedMastersMaterialsRoute,
   AuthenticatedMastersPlantsRoute: AuthenticatedMastersPlantsRoute,
   AuthenticatedProcurementPoIdRoute: AuthenticatedProcurementPoIdRoute,
@@ -1037,12 +1213,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHrIndexRoute: AuthenticatedHrIndexRoute,
   AuthenticatedInventoryIndexRoute: AuthenticatedInventoryIndexRoute,
   AuthenticatedJarvisIndexRoute: AuthenticatedJarvisIndexRoute,
+  AuthenticatedMaintenanceIndexRoute: AuthenticatedMaintenanceIndexRoute,
   AuthenticatedNurseryIndexRoute: AuthenticatedNurseryIndexRoute,
   AuthenticatedPlantiqIndexRoute: AuthenticatedPlantiqIndexRoute,
   AuthenticatedProcurementIndexRoute: AuthenticatedProcurementIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedSiteIndexRoute: AuthenticatedSiteIndexRoute,
   AuthenticatedTenderBoqIndexRoute: AuthenticatedTenderBoqIndexRoute,
+  AuthenticatedMaintenanceSitesSiteIdRoute:
+    AuthenticatedMaintenanceSitesSiteIdRoute,
+  AuthenticatedMaintenanceSitesIndexRoute:
+    AuthenticatedMaintenanceSitesIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

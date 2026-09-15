@@ -65,7 +65,18 @@ export const NAVIGATION: NavGroup[] = [
     items: [
       { label: "PlantIQ", to: "/plantiq", module: "plantiq" },
       { label: "Nursery Stock", to: "/nursery", module: "nursery" },
-      { label: "Samak Care / AMC", to: "/care", module: "care", future: true },
+    ],
+  },
+  {
+    group: "Maintenance",
+    items: [
+      { label: "Overview", to: "/maintenance", module: "care" },
+      { label: "Contracts", to: "/maintenance/contracts", module: "care" },
+      { label: "Sites", to: "/maintenance/sites", module: "care" },
+      { label: "Tasks", to: "/maintenance/tasks", module: "care" },
+      { label: "Inspections", to: "/maintenance/inspections", module: "care" },
+      { label: "Issues", to: "/maintenance/issues", module: "care" },
+      { label: "Service Templates", to: "/maintenance/templates", module: "care" },
     ],
   },
   {

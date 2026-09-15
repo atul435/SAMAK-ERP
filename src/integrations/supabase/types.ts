@@ -2221,6 +2221,1075 @@ export type Database = {
           },
         ];
       };
+      maintenance_contracts: {
+        Row: {
+          access_restrictions: string | null;
+          approval_contact: string | null;
+          billing_terms: string | null;
+          client_id: string;
+          client_obligations: string | null;
+          company_id: string;
+          contract_code: string;
+          created_at: string;
+          created_by: string | null;
+          end_date: string | null;
+          equipment_responsibility: string | null;
+          escalation_clause: string | null;
+          frequency: string | null;
+          gst_percent: number | null;
+          id: string;
+          is_archived: boolean;
+          material_cap: number | null;
+          monthly_fee: number | null;
+          plant_replacement_policy: string | null;
+          renewal_notice_days: number | null;
+          resolution_sla_hours: number | null;
+          response_sla_hours: number | null;
+          seasonal_allowance: string | null;
+          signed_document_url: string | null;
+          start_date: string | null;
+          status: string;
+          title: string;
+          updated_at: string;
+          updated_by: string | null;
+          working_hours: string | null;
+        };
+        Insert: {
+          access_restrictions?: string | null;
+          approval_contact?: string | null;
+          billing_terms?: string | null;
+          client_id: string;
+          client_obligations?: string | null;
+          company_id: string;
+          contract_code: string;
+          created_at?: string;
+          created_by?: string | null;
+          end_date?: string | null;
+          equipment_responsibility?: string | null;
+          escalation_clause?: string | null;
+          frequency?: string | null;
+          gst_percent?: number | null;
+          id?: string;
+          is_archived?: boolean;
+          material_cap?: number | null;
+          monthly_fee?: number | null;
+          plant_replacement_policy?: string | null;
+          renewal_notice_days?: number | null;
+          resolution_sla_hours?: number | null;
+          response_sla_hours?: number | null;
+          seasonal_allowance?: string | null;
+          signed_document_url?: string | null;
+          start_date?: string | null;
+          status?: string;
+          title: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          working_hours?: string | null;
+        };
+        Update: {
+          access_restrictions?: string | null;
+          approval_contact?: string | null;
+          billing_terms?: string | null;
+          client_id?: string;
+          client_obligations?: string | null;
+          company_id?: string;
+          contract_code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          end_date?: string | null;
+          equipment_responsibility?: string | null;
+          escalation_clause?: string | null;
+          frequency?: string | null;
+          gst_percent?: number | null;
+          id?: string;
+          is_archived?: boolean;
+          material_cap?: number | null;
+          monthly_fee?: number | null;
+          plant_replacement_policy?: string | null;
+          renewal_notice_days?: number | null;
+          resolution_sla_hours?: number | null;
+          response_sla_hours?: number | null;
+          seasonal_allowance?: string | null;
+          signed_document_url?: string | null;
+          start_date?: string | null;
+          status?: string;
+          title?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+          working_hours?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_contracts_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_contracts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_sites: {
+        Row: {
+          address: string | null;
+          city: string | null;
+          client_id: string;
+          company_id: string;
+          contract_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          is_archived: boolean;
+          is_external_build: boolean;
+          name: string;
+          project_id: string | null;
+          site_code: string;
+          state: string | null;
+          status: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          address?: string | null;
+          city?: string | null;
+          client_id: string;
+          company_id: string;
+          contract_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          is_external_build?: boolean;
+          name: string;
+          project_id?: string | null;
+          site_code: string;
+          state?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          address?: string | null;
+          city?: string | null;
+          client_id?: string;
+          company_id?: string;
+          contract_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          is_external_build?: boolean;
+          name?: string;
+          project_id?: string | null;
+          site_code?: string;
+          state?: string | null;
+          status?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_sites_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_sites_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_sites_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_contracts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_sites_project_id_fkey";
+            columns: ["project_id"];
+            isOneToOne: false;
+            referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_zones: {
+        Row: {
+          area_sqm: number | null;
+          created_at: string;
+          id: string;
+          name: string;
+          notes: string | null;
+          site_id: string;
+          updated_at: string;
+          zone_code: string | null;
+          zone_type: string;
+        };
+        Insert: {
+          area_sqm?: number | null;
+          created_at?: string;
+          id?: string;
+          name: string;
+          notes?: string | null;
+          site_id: string;
+          updated_at?: string;
+          zone_code?: string | null;
+          zone_type?: string;
+        };
+        Update: {
+          area_sqm?: number | null;
+          created_at?: string;
+          id?: string;
+          name?: string;
+          notes?: string | null;
+          site_id?: string;
+          updated_at?: string;
+          zone_code?: string | null;
+          zone_type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_zones_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_assets: {
+        Row: {
+          asset_code: string | null;
+          asset_type: string;
+          condition: string | null;
+          count_or_area: number | null;
+          created_at: string;
+          expected_service_years: number | null;
+          id: string;
+          installed_date: string | null;
+          is_protected: boolean;
+          notes: string | null;
+          site_id: string;
+          size_spec: string | null;
+          source: string | null;
+          species_id: string | null;
+          specification: string | null;
+          tree_risk_rating: string | null;
+          uom: string | null;
+          updated_at: string;
+          warranty_until: string | null;
+          zone_id: string | null;
+        };
+        Insert: {
+          asset_code?: string | null;
+          asset_type: string;
+          condition?: string | null;
+          count_or_area?: number | null;
+          created_at?: string;
+          expected_service_years?: number | null;
+          id?: string;
+          installed_date?: string | null;
+          is_protected?: boolean;
+          notes?: string | null;
+          site_id: string;
+          size_spec?: string | null;
+          source?: string | null;
+          species_id?: string | null;
+          specification?: string | null;
+          tree_risk_rating?: string | null;
+          uom?: string | null;
+          updated_at?: string;
+          warranty_until?: string | null;
+          zone_id?: string | null;
+        };
+        Update: {
+          asset_code?: string | null;
+          asset_type?: string;
+          condition?: string | null;
+          count_or_area?: number | null;
+          created_at?: string;
+          expected_service_years?: number | null;
+          id?: string;
+          installed_date?: string | null;
+          is_protected?: boolean;
+          notes?: string | null;
+          site_id?: string;
+          size_spec?: string | null;
+          source?: string | null;
+          species_id?: string | null;
+          specification?: string | null;
+          tree_risk_rating?: string | null;
+          uom?: string | null;
+          updated_at?: string;
+          warranty_until?: string | null;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_assets_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_assets_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_assets_species_id_fkey";
+            columns: ["species_id"];
+            isOneToOne: false;
+            referencedRelation: "plant_species";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      service_templates: {
+        Row: {
+          company_id: string;
+          created_at: string;
+          frequency: string | null;
+          id: string;
+          is_active: boolean;
+          materials_notes: string | null;
+          name: string;
+          safety_instructions: string | null;
+          season: string | null;
+          skill_required: string | null;
+          standard_hours: number | null;
+          template_code: string;
+          uom: string;
+          updated_at: string;
+          work_type: string | null;
+        };
+        Insert: {
+          company_id: string;
+          created_at?: string;
+          frequency?: string | null;
+          id?: string;
+          is_active?: boolean;
+          materials_notes?: string | null;
+          name: string;
+          safety_instructions?: string | null;
+          season?: string | null;
+          skill_required?: string | null;
+          standard_hours?: number | null;
+          template_code: string;
+          uom?: string;
+          updated_at?: string;
+          work_type?: string | null;
+        };
+        Update: {
+          company_id?: string;
+          created_at?: string;
+          frequency?: string | null;
+          id?: string;
+          is_active?: boolean;
+          materials_notes?: string | null;
+          name?: string;
+          safety_instructions?: string | null;
+          season?: string | null;
+          skill_required?: string | null;
+          standard_hours?: number | null;
+          template_code?: string;
+          uom?: string;
+          updated_at?: string;
+          work_type?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_templates_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_schedules: {
+        Row: {
+          assigned_crew: string | null;
+          assigned_employee_id: string | null;
+          created_at: string;
+          end_date: string | null;
+          frequency: string;
+          id: string;
+          override_reason: string | null;
+          service_template_id: string | null;
+          site_id: string;
+          start_date: string;
+          status: string;
+          updated_at: string;
+          version: number;
+          zone_id: string | null;
+        };
+        Insert: {
+          assigned_crew?: string | null;
+          assigned_employee_id?: string | null;
+          created_at?: string;
+          end_date?: string | null;
+          frequency: string;
+          id?: string;
+          override_reason?: string | null;
+          service_template_id?: string | null;
+          site_id: string;
+          start_date: string;
+          status?: string;
+          updated_at?: string;
+          version?: number;
+          zone_id?: string | null;
+        };
+        Update: {
+          assigned_crew?: string | null;
+          assigned_employee_id?: string | null;
+          created_at?: string;
+          end_date?: string | null;
+          frequency?: string;
+          id?: string;
+          override_reason?: string | null;
+          service_template_id?: string | null;
+          site_id?: string;
+          start_date?: string;
+          status?: string;
+          updated_at?: string;
+          version?: number;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_schedules_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_schedules_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_schedules_service_template_id_fkey";
+            columns: ["service_template_id"];
+            isOneToOne: false;
+            referencedRelation: "service_templates";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_schedules_assigned_employee_id_fkey";
+            columns: ["assigned_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_tasks: {
+        Row: {
+          assignee_employee_id: string | null;
+          created_at: string;
+          id: string;
+          planned_date: string;
+          schedule_id: string | null;
+          service_template_id: string | null;
+          site_id: string;
+          status: string;
+          supervisor_reviewed: boolean;
+          supervisor_reviewed_by: string | null;
+          task_type: string;
+          title: string;
+          updated_at: string;
+          zone_id: string | null;
+        };
+        Insert: {
+          assignee_employee_id?: string | null;
+          created_at?: string;
+          id?: string;
+          planned_date: string;
+          schedule_id?: string | null;
+          service_template_id?: string | null;
+          site_id: string;
+          status?: string;
+          supervisor_reviewed?: boolean;
+          supervisor_reviewed_by?: string | null;
+          task_type?: string;
+          title: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Update: {
+          assignee_employee_id?: string | null;
+          created_at?: string;
+          id?: string;
+          planned_date?: string;
+          schedule_id?: string | null;
+          service_template_id?: string | null;
+          site_id?: string;
+          status?: string;
+          supervisor_reviewed?: boolean;
+          supervisor_reviewed_by?: string | null;
+          task_type?: string;
+          title?: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_tasks_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_schedule_id_fkey";
+            columns: ["schedule_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_schedules";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_service_template_id_fkey";
+            columns: ["service_template_id"];
+            isOneToOne: false;
+            referencedRelation: "service_templates";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_assignee_employee_id_fkey";
+            columns: ["assignee_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_supervisor_reviewed_by_fkey";
+            columns: ["supervisor_reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_task_logs: {
+        Row: {
+          checked_in_at: string | null;
+          checked_out_at: string | null;
+          client_signature: boolean;
+          created_at: string;
+          geo_lat: number | null;
+          geo_lng: number | null;
+          gps_override_reason: string | null;
+          id: string;
+          incomplete_reason: string | null;
+          issue_notes: string | null;
+          logged_by: string | null;
+          materials_used: string | null;
+          photo_url: string | null;
+          quantity_completed: number | null;
+          replan_date: string | null;
+          reported_status: string;
+          task_id: string;
+          uom: string | null;
+        };
+        Insert: {
+          checked_in_at?: string | null;
+          checked_out_at?: string | null;
+          client_signature?: boolean;
+          created_at?: string;
+          geo_lat?: number | null;
+          geo_lng?: number | null;
+          gps_override_reason?: string | null;
+          id?: string;
+          incomplete_reason?: string | null;
+          issue_notes?: string | null;
+          logged_by?: string | null;
+          materials_used?: string | null;
+          photo_url?: string | null;
+          quantity_completed?: number | null;
+          replan_date?: string | null;
+          reported_status: string;
+          task_id: string;
+          uom?: string | null;
+        };
+        Update: {
+          checked_in_at?: string | null;
+          checked_out_at?: string | null;
+          client_signature?: boolean;
+          created_at?: string;
+          geo_lat?: number | null;
+          geo_lng?: number | null;
+          gps_override_reason?: string | null;
+          id?: string;
+          incomplete_reason?: string | null;
+          issue_notes?: string | null;
+          logged_by?: string | null;
+          materials_used?: string | null;
+          photo_url?: string | null;
+          quantity_completed?: number | null;
+          replan_date?: string | null;
+          reported_status?: string;
+          task_id?: string;
+          uom?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_task_logs_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_task_logs_logged_by_fkey";
+            columns: ["logged_by"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_inspections: {
+        Row: {
+          created_at: string;
+          id: string;
+          inspection_date: string;
+          inspector_employee_id: string | null;
+          notes: string | null;
+          overall_score: number | null;
+          season: string | null;
+          site_id: string;
+          updated_at: string;
+          zone_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          inspection_date?: string;
+          inspector_employee_id?: string | null;
+          notes?: string | null;
+          overall_score?: number | null;
+          season?: string | null;
+          site_id: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          inspection_date?: string;
+          inspector_employee_id?: string | null;
+          notes?: string | null;
+          overall_score?: number | null;
+          season?: string | null;
+          site_id?: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_inspections_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_inspections_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_inspections_inspector_employee_id_fkey";
+            columns: ["inspector_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inspection_findings: {
+        Row: {
+          affected_area_or_count: number | null;
+          category: string;
+          confidence: string | null;
+          created_at: string;
+          id: string;
+          inspection_id: string;
+          is_verified: boolean;
+          notes: string | null;
+          photo_url: string | null;
+          probable_cause: string | null;
+          severity: string;
+          updated_at: string;
+          verified_by: string | null;
+        };
+        Insert: {
+          affected_area_or_count?: number | null;
+          category: string;
+          confidence?: string | null;
+          created_at?: string;
+          id?: string;
+          inspection_id: string;
+          is_verified?: boolean;
+          notes?: string | null;
+          photo_url?: string | null;
+          probable_cause?: string | null;
+          severity?: string;
+          updated_at?: string;
+          verified_by?: string | null;
+        };
+        Update: {
+          affected_area_or_count?: number | null;
+          category?: string;
+          confidence?: string | null;
+          created_at?: string;
+          id?: string;
+          inspection_id?: string;
+          is_verified?: boolean;
+          notes?: string | null;
+          photo_url?: string | null;
+          probable_cause?: string | null;
+          severity?: string;
+          updated_at?: string;
+          verified_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inspection_findings_inspection_id_fkey";
+            columns: ["inspection_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_inspections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inspection_findings_verified_by_fkey";
+            columns: ["verified_by"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      plant_treatments: {
+        Row: {
+          application_area: string | null;
+          approval_request_id: string | null;
+          asset_id: string | null;
+          created_at: string;
+          dose: string | null;
+          efficacy_notes: string | null;
+          finding_id: string | null;
+          follow_up_date: string | null;
+          id: string;
+          operator_employee_id: string | null;
+          outcome: string | null;
+          product: string | null;
+          requires_approval: boolean;
+          safety_precautions: string | null;
+          site_id: string;
+          updated_at: string;
+          weather: string | null;
+        };
+        Insert: {
+          application_area?: string | null;
+          approval_request_id?: string | null;
+          asset_id?: string | null;
+          created_at?: string;
+          dose?: string | null;
+          efficacy_notes?: string | null;
+          finding_id?: string | null;
+          follow_up_date?: string | null;
+          id?: string;
+          operator_employee_id?: string | null;
+          outcome?: string | null;
+          product?: string | null;
+          requires_approval?: boolean;
+          safety_precautions?: string | null;
+          site_id: string;
+          updated_at?: string;
+          weather?: string | null;
+        };
+        Update: {
+          application_area?: string | null;
+          approval_request_id?: string | null;
+          asset_id?: string | null;
+          created_at?: string;
+          dose?: string | null;
+          efficacy_notes?: string | null;
+          finding_id?: string | null;
+          follow_up_date?: string | null;
+          id?: string;
+          operator_employee_id?: string | null;
+          outcome?: string | null;
+          product?: string | null;
+          requires_approval?: boolean;
+          safety_precautions?: string | null;
+          site_id?: string;
+          updated_at?: string;
+          weather?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "plant_treatments_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "plant_treatments_finding_id_fkey";
+            columns: ["finding_id"];
+            isOneToOne: false;
+            referencedRelation: "inspection_findings";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "plant_treatments_asset_id_fkey";
+            columns: ["asset_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_assets";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "plant_treatments_operator_employee_id_fkey";
+            columns: ["operator_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "plant_treatments_approval_request_id_fkey";
+            columns: ["approval_request_id"];
+            isOneToOne: false;
+            referencedRelation: "approval_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_issues: {
+        Row: {
+          approval_request_id: string | null;
+          asset_id: string | null;
+          closed_at: string | null;
+          created_at: string;
+          description: string | null;
+          estimated_cost: number | null;
+          id: string;
+          is_extra_work: boolean;
+          issue_code: string | null;
+          owner_employee_id: string | null;
+          reopen_count: number;
+          severity: string;
+          site_id: string;
+          source: string;
+          status: string;
+          target_date: string | null;
+          title: string;
+          updated_at: string;
+          zone_id: string | null;
+        };
+        Insert: {
+          approval_request_id?: string | null;
+          asset_id?: string | null;
+          closed_at?: string | null;
+          created_at?: string;
+          description?: string | null;
+          estimated_cost?: number | null;
+          id?: string;
+          is_extra_work?: boolean;
+          issue_code?: string | null;
+          owner_employee_id?: string | null;
+          reopen_count?: number;
+          severity?: string;
+          site_id: string;
+          source?: string;
+          status?: string;
+          target_date?: string | null;
+          title: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Update: {
+          approval_request_id?: string | null;
+          asset_id?: string | null;
+          closed_at?: string | null;
+          created_at?: string;
+          description?: string | null;
+          estimated_cost?: number | null;
+          id?: string;
+          is_extra_work?: boolean;
+          issue_code?: string | null;
+          owner_employee_id?: string | null;
+          reopen_count?: number;
+          severity?: string;
+          site_id?: string;
+          source?: string;
+          status?: string;
+          target_date?: string | null;
+          title?: string;
+          updated_at?: string;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_issues_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_issues_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_issues_asset_id_fkey";
+            columns: ["asset_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_assets";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_issues_owner_employee_id_fkey";
+            columns: ["owner_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_issues_approval_request_id_fkey";
+            columns: ["approval_request_id"];
+            isOneToOne: false;
+            referencedRelation: "approval_requests";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      irrigation_zones: {
+        Row: {
+          controller_name: string;
+          created_at: string;
+          design_flow_lpm: number | null;
+          id: string;
+          notes: string | null;
+          rainfall_override: boolean;
+          schedule_notes: string | null;
+          site_id: string;
+          updated_at: string;
+          valve_count: number | null;
+          zone_id: string | null;
+        };
+        Insert: {
+          controller_name: string;
+          created_at?: string;
+          design_flow_lpm?: number | null;
+          id?: string;
+          notes?: string | null;
+          rainfall_override?: boolean;
+          schedule_notes?: string | null;
+          site_id: string;
+          updated_at?: string;
+          valve_count?: number | null;
+          zone_id?: string | null;
+        };
+        Update: {
+          controller_name?: string;
+          created_at?: string;
+          design_flow_lpm?: number | null;
+          id?: string;
+          notes?: string | null;
+          rainfall_override?: boolean;
+          schedule_notes?: string | null;
+          site_id?: string;
+          updated_at?: string;
+          valve_count?: number | null;
+          zone_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "irrigation_zones_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "irrigation_zones_zone_id_fkey";
+            columns: ["zone_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_zones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      irrigation_readings: {
+        Row: {
+          anomaly_flag: boolean;
+          created_at: string;
+          id: string;
+          irrigation_zone_id: string;
+          meter_value: number | null;
+          notes: string | null;
+          reading_date: string;
+        };
+        Insert: {
+          anomaly_flag?: boolean;
+          created_at?: string;
+          id?: string;
+          irrigation_zone_id: string;
+          meter_value?: number | null;
+          notes?: string | null;
+          reading_date?: string;
+        };
+        Update: {
+          anomaly_flag?: boolean;
+          created_at?: string;
+          id?: string;
+          irrigation_zone_id?: string;
+          meter_value?: number | null;
+          notes?: string | null;
+          reading_date?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "irrigation_readings_irrigation_zone_id_fkey";
+            columns: ["irrigation_zone_id"];
+            isOneToOne: false;
+            referencedRelation: "irrigation_zones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       materials: {
         Row: {
           category: string;
