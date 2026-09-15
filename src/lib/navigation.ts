@@ -41,6 +41,7 @@ export const NAVIGATION: NavGroup[] = [
       { label: "Design Studio", to: "/design", module: "design" },
       { label: "Plant Explorer", to: "/masters/plants", module: "plantiq" },
       { label: "BOQ & Estimation", to: "/boq", module: "boq" },
+      { label: "Tender BOQ", to: "/tender-boq", module: "boq" },
     ],
   },
   {

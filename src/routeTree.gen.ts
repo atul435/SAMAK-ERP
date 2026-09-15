@@ -49,6 +49,8 @@ import { Route as AuthenticatedProjectsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedProjectsProjectIdRouteImport } from './routes/_authenticated/projects.$projectId'
 import { Route as AuthenticatedSiteIndexRouteImport } from './routes/_authenticated/site.index'
 import { Route as AuthenticatedSiteReportIdRouteImport } from './routes/_authenticated/site.$reportId'
+import { Route as AuthenticatedTenderBoqIndexRouteImport } from './routes/_authenticated/tender-boq.index'
+import { Route as AuthenticatedTenderBoqTenderBoqIdRouteImport } from './routes/_authenticated/tender-boq.$tenderBoqId'
 import { Route as PortalPortalIndexRouteImport } from './routes/_portal/portal.index'
 import { Route as PortalPortalBillingRouteImport } from './routes/_portal/portal.billing'
 import { Route as PortalPortalBillsRouteImport } from './routes/_portal/portal.bills'
@@ -274,6 +276,18 @@ const AuthenticatedSiteReportIdRoute =
     path: '/site/$reportId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTenderBoqIndexRoute =
+  AuthenticatedTenderBoqIndexRouteImport.update({
+    id: '/tender-boq/',
+    path: '/tender-boq/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTenderBoqTenderBoqIdRoute =
+  AuthenticatedTenderBoqTenderBoqIdRouteImport.update({
+    id: '/tender-boq/$tenderBoqId',
+    path: '/tender-boq/$tenderBoqId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const PortalPortalIndexRoute = PortalPortalIndexRouteImport.update({
   id: '/portal/',
   path: '/portal/',
@@ -333,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/site/$reportId': typeof AuthenticatedSiteReportIdRoute
+  '/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/portal/billing': typeof PortalPortalBillingRoute
   '/portal/bills': typeof PortalPortalBillsRoute
   '/portal/orders': typeof PortalPortalOrdersRoute
@@ -349,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/procurement/': typeof AuthenticatedProcurementIndexRoute
   '/projects/': typeof AuthenticatedProjectsIndexRoute
   '/site/': typeof AuthenticatedSiteIndexRoute
+  '/tender-boq/': typeof AuthenticatedTenderBoqIndexRoute
   '/portal/': typeof PortalPortalIndexRoute
 }
 export interface FileRoutesByTo {
@@ -379,6 +395,7 @@ export interface FileRoutesByTo {
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
   '/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/site/$reportId': typeof AuthenticatedSiteReportIdRoute
+  '/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/portal/billing': typeof PortalPortalBillingRoute
   '/portal/bills': typeof PortalPortalBillsRoute
   '/portal/orders': typeof PortalPortalOrdersRoute
@@ -395,6 +412,7 @@ export interface FileRoutesByTo {
   '/procurement': typeof AuthenticatedProcurementIndexRoute
   '/projects': typeof AuthenticatedProjectsIndexRoute
   '/site': typeof AuthenticatedSiteIndexRoute
+  '/tender-boq': typeof AuthenticatedTenderBoqIndexRoute
   '/portal': typeof PortalPortalIndexRoute
 }
 export interface FileRoutesById {
@@ -428,6 +446,7 @@ export interface FileRoutesById {
   '/_authenticated/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
   '/_authenticated/projects/$projectId': typeof AuthenticatedProjectsProjectIdRoute
   '/_authenticated/site/$reportId': typeof AuthenticatedSiteReportIdRoute
+  '/_authenticated/tender-boq/$tenderBoqId': typeof AuthenticatedTenderBoqTenderBoqIdRoute
   '/_portal/portal/billing': typeof PortalPortalBillingRoute
   '/_portal/portal/bills': typeof PortalPortalBillsRoute
   '/_portal/portal/orders': typeof PortalPortalOrdersRoute
@@ -444,6 +463,7 @@ export interface FileRoutesById {
   '/_authenticated/procurement/': typeof AuthenticatedProcurementIndexRoute
   '/_authenticated/projects/': typeof AuthenticatedProjectsIndexRoute
   '/_authenticated/site/': typeof AuthenticatedSiteIndexRoute
+  '/_authenticated/tender-boq/': typeof AuthenticatedTenderBoqIndexRoute
   '/_portal/portal/': typeof PortalPortalIndexRoute
 }
 export interface FileRouteTypes {
@@ -476,6 +496,7 @@ export interface FileRouteTypes {
     | '/procurement/$poId'
     | '/projects/$projectId'
     | '/site/$reportId'
+    | '/tender-boq/$tenderBoqId'
     | '/portal/billing'
     | '/portal/bills'
     | '/portal/orders'
@@ -492,6 +513,7 @@ export interface FileRouteTypes {
     | '/procurement/'
     | '/projects/'
     | '/site/'
+    | '/tender-boq/'
     | '/portal/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -522,6 +544,7 @@ export interface FileRouteTypes {
     | '/procurement/$poId'
     | '/projects/$projectId'
     | '/site/$reportId'
+    | '/tender-boq/$tenderBoqId'
     | '/portal/billing'
     | '/portal/bills'
     | '/portal/orders'
@@ -538,6 +561,7 @@ export interface FileRouteTypes {
     | '/procurement'
     | '/projects'
     | '/site'
+    | '/tender-boq'
     | '/portal'
   id:
     | '__root__'
@@ -570,6 +594,7 @@ export interface FileRouteTypes {
     | '/_authenticated/procurement/$poId'
     | '/_authenticated/projects/$projectId'
     | '/_authenticated/site/$reportId'
+    | '/_authenticated/tender-boq/$tenderBoqId'
     | '/_portal/portal/billing'
     | '/_portal/portal/bills'
     | '/_portal/portal/orders'
@@ -586,6 +611,7 @@ export interface FileRouteTypes {
     | '/_authenticated/procurement/'
     | '/_authenticated/projects/'
     | '/_authenticated/site/'
+    | '/_authenticated/tender-boq/'
     | '/_portal/portal/'
   fileRoutesById: FileRoutesById
 }
@@ -881,6 +907,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSiteReportIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/tender-boq/': {
+      id: '/_authenticated/tender-boq/'
+      path: '/tender-boq'
+      fullPath: '/tender-boq/'
+      preLoaderRoute: typeof AuthenticatedTenderBoqIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tender-boq/$tenderBoqId': {
+      id: '/_authenticated/tender-boq/$tenderBoqId'
+      path: '/tender-boq/$tenderBoqId'
+      fullPath: '/tender-boq/$tenderBoqId'
+      preLoaderRoute: typeof AuthenticatedTenderBoqTenderBoqIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_portal/portal/': {
       id: '/_portal/portal/'
       path: '/portal'
@@ -950,6 +990,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProcurementPoIdRoute: typeof AuthenticatedProcurementPoIdRoute
   AuthenticatedProjectsProjectIdRoute: typeof AuthenticatedProjectsProjectIdRoute
   AuthenticatedSiteReportIdRoute: typeof AuthenticatedSiteReportIdRoute
+  AuthenticatedTenderBoqTenderBoqIdRoute: typeof AuthenticatedTenderBoqTenderBoqIdRoute
   AuthenticatedBoqIndexRoute: typeof AuthenticatedBoqIndexRoute
   AuthenticatedDesignIndexRoute: typeof AuthenticatedDesignIndexRoute
   AuthenticatedFinanceIndexRoute: typeof AuthenticatedFinanceIndexRoute
@@ -961,6 +1002,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProcurementIndexRoute: typeof AuthenticatedProcurementIndexRoute
   AuthenticatedProjectsIndexRoute: typeof AuthenticatedProjectsIndexRoute
   AuthenticatedSiteIndexRoute: typeof AuthenticatedSiteIndexRoute
+  AuthenticatedTenderBoqIndexRoute: typeof AuthenticatedTenderBoqIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -987,6 +1029,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProcurementPoIdRoute: AuthenticatedProcurementPoIdRoute,
   AuthenticatedProjectsProjectIdRoute: AuthenticatedProjectsProjectIdRoute,
   AuthenticatedSiteReportIdRoute: AuthenticatedSiteReportIdRoute,
+  AuthenticatedTenderBoqTenderBoqIdRoute:
+    AuthenticatedTenderBoqTenderBoqIdRoute,
   AuthenticatedBoqIndexRoute: AuthenticatedBoqIndexRoute,
   AuthenticatedDesignIndexRoute: AuthenticatedDesignIndexRoute,
   AuthenticatedFinanceIndexRoute: AuthenticatedFinanceIndexRoute,
@@ -998,6 +1042,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProcurementIndexRoute: AuthenticatedProcurementIndexRoute,
   AuthenticatedProjectsIndexRoute: AuthenticatedProjectsIndexRoute,
   AuthenticatedSiteIndexRoute: AuthenticatedSiteIndexRoute,
+  AuthenticatedTenderBoqIndexRoute: AuthenticatedTenderBoqIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

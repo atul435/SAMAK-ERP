@@ -2097,6 +2097,130 @@ export type Database = {
           },
         ];
       };
+      tender_boqs: {
+        Row: {
+          client_id: string | null;
+          company_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          is_archived: boolean;
+          prepared_by: string | null;
+          project_name: string;
+          status: string;
+          tender_id: string | null;
+          updated_at: string;
+          updated_by: string | null;
+          work_description: string | null;
+        };
+        Insert: {
+          client_id?: string | null;
+          company_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          prepared_by?: string | null;
+          project_name: string;
+          status?: string;
+          tender_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          work_description?: string | null;
+        };
+        Update: {
+          client_id?: string | null;
+          company_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          is_archived?: boolean;
+          prepared_by?: string | null;
+          project_name?: string;
+          status?: string;
+          tender_id?: string | null;
+          updated_at?: string;
+          updated_by?: string | null;
+          work_description?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tender_boqs_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_boqs_tender_id_fkey";
+            columns: ["tender_id"];
+            isOneToOne: false;
+            referencedRelation: "tenders";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_boqs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "clients";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "tender_boqs_prepared_by_fkey";
+            columns: ["prepared_by"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      tender_boq_items: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          item_code: string | null;
+          quantity: number | null;
+          rate: number | null;
+          sort_order: number;
+          tender_boq_id: string;
+          uom: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          id?: string;
+          item_code?: string | null;
+          quantity?: number | null;
+          rate?: number | null;
+          sort_order?: number;
+          tender_boq_id: string;
+          uom?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          item_code?: string | null;
+          quantity?: number | null;
+          rate?: number | null;
+          sort_order?: number;
+          tender_boq_id?: string;
+          uom?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "tender_boq_items_tender_boq_id_fkey";
+            columns: ["tender_boq_id"];
+            isOneToOne: false;
+            referencedRelation: "tender_boqs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       materials: {
         Row: {
           category: string;
