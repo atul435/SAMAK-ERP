@@ -45,11 +45,11 @@ import { Route as AuthenticatedMaintenanceCrewsRouteImport } from './routes/_aut
 import { Route as AuthenticatedMaintenanceEquipmentRouteImport } from './routes/_authenticated/maintenance.equipment'
 import { Route as AuthenticatedMaintenanceInspectionsRouteImport } from './routes/_authenticated/maintenance.inspections'
 import { Route as AuthenticatedMaintenanceIrrigationRouteImport } from './routes/_authenticated/maintenance.irrigation'
-import { Route as AuthenticatedMaintenanceIssuesRouteImport } from './routes/_authenticated/maintenance.issues'
+import { Route as AuthenticatedMaintenanceRequestsRouteImport } from './routes/_authenticated/maintenance.requests'
 import { Route as AuthenticatedMaintenanceSchedulesRouteImport } from './routes/_authenticated/maintenance.schedules'
-import { Route as AuthenticatedMaintenanceTasksRouteImport } from './routes/_authenticated/maintenance.tasks'
 import { Route as AuthenticatedMaintenanceTemplatesRouteImport } from './routes/_authenticated/maintenance.templates'
 import { Route as AuthenticatedMaintenanceTreatmentsRouteImport } from './routes/_authenticated/maintenance.treatments'
+import { Route as AuthenticatedMaintenanceVisitsRouteImport } from './routes/_authenticated/maintenance.visits'
 import { Route as AuthenticatedMastersMaterialsRouteImport } from './routes/_authenticated/masters.materials'
 import { Route as AuthenticatedMastersPlantsRouteImport } from './routes/_authenticated/masters.plants'
 import { Route as AuthenticatedNurseryIndexRouteImport } from './routes/_authenticated/nursery.index'
@@ -267,22 +267,16 @@ const AuthenticatedMaintenanceIrrigationRoute =
     path: '/maintenance/irrigation',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedMaintenanceIssuesRoute =
-  AuthenticatedMaintenanceIssuesRouteImport.update({
-    id: '/maintenance/issues',
-    path: '/maintenance/issues',
+const AuthenticatedMaintenanceRequestsRoute =
+  AuthenticatedMaintenanceRequestsRouteImport.update({
+    id: '/maintenance/requests',
+    path: '/maintenance/requests',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMaintenanceSchedulesRoute =
   AuthenticatedMaintenanceSchedulesRouteImport.update({
     id: '/maintenance/schedules',
     path: '/maintenance/schedules',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedMaintenanceTasksRoute =
-  AuthenticatedMaintenanceTasksRouteImport.update({
-    id: '/maintenance/tasks',
-    path: '/maintenance/tasks',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMaintenanceTemplatesRoute =
@@ -295,6 +289,12 @@ const AuthenticatedMaintenanceTreatmentsRoute =
   AuthenticatedMaintenanceTreatmentsRouteImport.update({
     id: '/maintenance/treatments',
     path: '/maintenance/treatments',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMaintenanceVisitsRoute =
+  AuthenticatedMaintenanceVisitsRouteImport.update({
+    id: '/maintenance/visits',
+    path: '/maintenance/visits',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMastersMaterialsRoute =
@@ -444,11 +444,11 @@ export interface FileRoutesByFullPath {
   '/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
   '/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
-  '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/requests': typeof AuthenticatedMaintenanceRequestsRoute
   '/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
-  '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
+  '/maintenance/visits': typeof AuthenticatedMaintenanceVisitsRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -506,11 +506,11 @@ export interface FileRoutesByTo {
   '/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
   '/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
-  '/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/maintenance/requests': typeof AuthenticatedMaintenanceRequestsRoute
   '/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
-  '/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
+  '/maintenance/visits': typeof AuthenticatedMaintenanceVisitsRoute
   '/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -571,11 +571,11 @@ export interface FileRoutesById {
   '/_authenticated/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/_authenticated/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
   '/_authenticated/maintenance/irrigation': typeof AuthenticatedMaintenanceIrrigationRoute
-  '/_authenticated/maintenance/issues': typeof AuthenticatedMaintenanceIssuesRoute
+  '/_authenticated/maintenance/requests': typeof AuthenticatedMaintenanceRequestsRoute
   '/_authenticated/maintenance/schedules': typeof AuthenticatedMaintenanceSchedulesRoute
-  '/_authenticated/maintenance/tasks': typeof AuthenticatedMaintenanceTasksRoute
   '/_authenticated/maintenance/templates': typeof AuthenticatedMaintenanceTemplatesRoute
   '/_authenticated/maintenance/treatments': typeof AuthenticatedMaintenanceTreatmentsRoute
+  '/_authenticated/maintenance/visits': typeof AuthenticatedMaintenanceVisitsRoute
   '/_authenticated/masters/materials': typeof AuthenticatedMastersMaterialsRoute
   '/_authenticated/masters/plants': typeof AuthenticatedMastersPlantsRoute
   '/_authenticated/procurement/$poId': typeof AuthenticatedProcurementPoIdRoute
@@ -635,11 +635,11 @@ export interface FileRouteTypes {
     | '/maintenance/equipment'
     | '/maintenance/inspections'
     | '/maintenance/irrigation'
-    | '/maintenance/issues'
+    | '/maintenance/requests'
     | '/maintenance/schedules'
-    | '/maintenance/tasks'
     | '/maintenance/templates'
     | '/maintenance/treatments'
+    | '/maintenance/visits'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -697,11 +697,11 @@ export interface FileRouteTypes {
     | '/maintenance/equipment'
     | '/maintenance/inspections'
     | '/maintenance/irrigation'
-    | '/maintenance/issues'
+    | '/maintenance/requests'
     | '/maintenance/schedules'
-    | '/maintenance/tasks'
     | '/maintenance/templates'
     | '/maintenance/treatments'
+    | '/maintenance/visits'
     | '/masters/materials'
     | '/masters/plants'
     | '/procurement/$poId'
@@ -761,11 +761,11 @@ export interface FileRouteTypes {
     | '/_authenticated/maintenance/equipment'
     | '/_authenticated/maintenance/inspections'
     | '/_authenticated/maintenance/irrigation'
-    | '/_authenticated/maintenance/issues'
+    | '/_authenticated/maintenance/requests'
     | '/_authenticated/maintenance/schedules'
-    | '/_authenticated/maintenance/tasks'
     | '/_authenticated/maintenance/templates'
     | '/_authenticated/maintenance/treatments'
+    | '/_authenticated/maintenance/visits'
     | '/_authenticated/masters/materials'
     | '/_authenticated/masters/plants'
     | '/_authenticated/procurement/$poId'
@@ -1060,11 +1060,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceIrrigationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/maintenance/issues': {
-      id: '/_authenticated/maintenance/issues'
-      path: '/maintenance/issues'
-      fullPath: '/maintenance/issues'
-      preLoaderRoute: typeof AuthenticatedMaintenanceIssuesRouteImport
+    '/_authenticated/maintenance/requests': {
+      id: '/_authenticated/maintenance/requests'
+      path: '/maintenance/requests'
+      fullPath: '/maintenance/requests'
+      preLoaderRoute: typeof AuthenticatedMaintenanceRequestsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/maintenance/schedules': {
@@ -1072,13 +1072,6 @@ declare module '@tanstack/react-router' {
       path: '/maintenance/schedules'
       fullPath: '/maintenance/schedules'
       preLoaderRoute: typeof AuthenticatedMaintenanceSchedulesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/maintenance/tasks': {
-      id: '/_authenticated/maintenance/tasks'
-      path: '/maintenance/tasks'
-      fullPath: '/maintenance/tasks'
-      preLoaderRoute: typeof AuthenticatedMaintenanceTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/maintenance/templates': {
@@ -1093,6 +1086,13 @@ declare module '@tanstack/react-router' {
       path: '/maintenance/treatments'
       fullPath: '/maintenance/treatments'
       preLoaderRoute: typeof AuthenticatedMaintenanceTreatmentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/maintenance/visits': {
+      id: '/_authenticated/maintenance/visits'
+      path: '/maintenance/visits'
+      fullPath: '/maintenance/visits'
+      preLoaderRoute: typeof AuthenticatedMaintenanceVisitsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/masters/materials': {
@@ -1269,11 +1269,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMaintenanceEquipmentRoute: typeof AuthenticatedMaintenanceEquipmentRoute
   AuthenticatedMaintenanceInspectionsRoute: typeof AuthenticatedMaintenanceInspectionsRoute
   AuthenticatedMaintenanceIrrigationRoute: typeof AuthenticatedMaintenanceIrrigationRoute
-  AuthenticatedMaintenanceIssuesRoute: typeof AuthenticatedMaintenanceIssuesRoute
+  AuthenticatedMaintenanceRequestsRoute: typeof AuthenticatedMaintenanceRequestsRoute
   AuthenticatedMaintenanceSchedulesRoute: typeof AuthenticatedMaintenanceSchedulesRoute
-  AuthenticatedMaintenanceTasksRoute: typeof AuthenticatedMaintenanceTasksRoute
   AuthenticatedMaintenanceTemplatesRoute: typeof AuthenticatedMaintenanceTemplatesRoute
   AuthenticatedMaintenanceTreatmentsRoute: typeof AuthenticatedMaintenanceTreatmentsRoute
+  AuthenticatedMaintenanceVisitsRoute: typeof AuthenticatedMaintenanceVisitsRoute
   AuthenticatedMastersMaterialsRoute: typeof AuthenticatedMastersMaterialsRoute
   AuthenticatedMastersPlantsRoute: typeof AuthenticatedMastersPlantsRoute
   AuthenticatedProcurementPoIdRoute: typeof AuthenticatedProcurementPoIdRoute
@@ -1325,14 +1325,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMaintenanceInspectionsRoute,
   AuthenticatedMaintenanceIrrigationRoute:
     AuthenticatedMaintenanceIrrigationRoute,
-  AuthenticatedMaintenanceIssuesRoute: AuthenticatedMaintenanceIssuesRoute,
+  AuthenticatedMaintenanceRequestsRoute: AuthenticatedMaintenanceRequestsRoute,
   AuthenticatedMaintenanceSchedulesRoute:
     AuthenticatedMaintenanceSchedulesRoute,
-  AuthenticatedMaintenanceTasksRoute: AuthenticatedMaintenanceTasksRoute,
   AuthenticatedMaintenanceTemplatesRoute:
     AuthenticatedMaintenanceTemplatesRoute,
   AuthenticatedMaintenanceTreatmentsRoute:
     AuthenticatedMaintenanceTreatmentsRoute,
+  AuthenticatedMaintenanceVisitsRoute: AuthenticatedMaintenanceVisitsRoute,
   AuthenticatedMastersMaterialsRoute: AuthenticatedMastersMaterialsRoute,
   AuthenticatedMastersPlantsRoute: AuthenticatedMastersPlantsRoute,
   AuthenticatedProcurementPoIdRoute: AuthenticatedProcurementPoIdRoute,

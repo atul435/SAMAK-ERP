@@ -91,12 +91,12 @@ function MaintenanceDashboard() {
         <Link to="/maintenance/sites">
           <StatCard label="Sites" value={String(d.totalSites)} />
         </Link>
-        <Link to="/maintenance/tasks">
-          <StatCard label="Tasks due today" value={String(d.tasksDueToday)} />
+        <Link to="/maintenance/visits">
+          <StatCard label="Visits due today" value={String(d.tasksDueToday)} />
         </Link>
-        <Link to="/maintenance/tasks">
+        <Link to="/maintenance/visits">
           <StatCard
-            label="Tasks overdue"
+            label="Visits overdue"
             value={String(d.tasksOverdue)}
             tone={d.tasksOverdue > 0 ? "danger" : "default"}
           />
@@ -106,8 +106,8 @@ function MaintenanceDashboard() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
-            <p className="font-display text-sm font-semibold">Open issues</p>
-            <Link to="/maintenance/issues" className="text-xs text-primary hover:underline">
+            <p className="font-display text-sm font-semibold">Open requests</p>
+            <Link to="/maintenance/requests" className="text-xs text-primary hover:underline">
               View all
             </Link>
           </div>

@@ -186,7 +186,7 @@ function MaintenanceSchedulesPage() {
       });
       if (error) throw error;
     },
-    onSuccess: () => toast.success("Task generated for today — see Maintenance → Tasks"),
+    onSuccess: () => toast.success("Visit generated for today — see Maintenance → Visits"),
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -293,7 +293,7 @@ function MaintenanceSchedulesPage() {
                           })
                         }
                       >
-                        Generate task
+                        Generate visit
                       </Button>
                     </td>
                   ) : null}

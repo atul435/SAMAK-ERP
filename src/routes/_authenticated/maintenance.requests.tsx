@@ -29,23 +29,25 @@ import {
 } from "@/components/ui/select";
 import { inr, shortDate, titleCase } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/maintenance/issues")({
+export const Route = createFileRoute("/_authenticated/maintenance/requests")({
   head: () => ({
     meta: [
-      { title: "Maintenance Issues — EnvironIQ" },
+      { title: "Service Requests — EnvironIQ" },
       {
         name: "description",
-        content: "Issues from inspections, client requests and staff reports, through to closure.",
+        content:
+          "Complaints, extra-work and change requests from inspections and clients, through to closure.",
       },
-      { property: "og:title", content: "Maintenance Issues — EnvironIQ" },
+      { property: "og:title", content: "Service Requests — EnvironIQ" },
       { property: "og:description", content: "Triage, extra-work approval, dispatch and closure." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: MaintenanceIssuesPage,
+  component: ServiceRequestsPage,
 });
 
+const REQUEST_TYPES = ["complaint", "extra_work", "change_request"];
 const SOURCES = ["inspection", "client_request", "staff_report", "sensor", "other"];
 const SEVERITIES = ["low", "medium", "high", "critical"];
 const STATUSES = [
@@ -59,20 +61,23 @@ const STATUSES = [
   "reopened",
 ];
 
-function MaintenanceIssuesPage() {
+function ServiceRequestsPage() {
   const { employee, can } = useAuth();
   const canEdit = can("care", "edit");
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("open");
 
+  const invalidate = () =>
+    void queryClient.invalidateQueries({ queryKey: ["maintenance-requests-all"] });
+
   const query = useQuery({
-    queryKey: ["maintenance-issues-all"],
+    queryKey: ["maintenance-requests-all"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("maintenance_issues")
         .select(
-          "id, title, source, severity, status, is_extra_work, estimated_cost, approval_request_id, created_at, maintenance_sites(name)",
+          "id, title, request_type, source, severity, status, is_extra_work, estimated_cost, approval_request_id, created_at, maintenance_sites(name), maintenance_tasks(title)",
         )
         .order("created_at", { ascending: false })
         .limit(150);
@@ -87,9 +92,23 @@ function MaintenanceIssuesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("maintenance_sites")
-        .select("id, name, company_id")
+        .select("id, name")
         .eq("is_archived", false)
         .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const visitsQuery = useQuery({
+    queryKey: ["maintenance-visits-lite"],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("maintenance_tasks")
+        .select("id, title, planned_date")
+        .order("planned_date", { ascending: false })
+        .limit(100);
       if (error) throw error;
       return data;
     },
@@ -100,8 +119,10 @@ function MaintenanceIssuesPage() {
       siteId: string;
       title: string;
       description: string;
+      requestType: string;
       source: string;
       severity: string;
+      linkedTaskId: string;
       isExtraWork: boolean;
       estimatedCost: string;
     }) => {
@@ -110,18 +131,20 @@ function MaintenanceIssuesPage() {
         site_id: form.siteId,
         title: form.title.trim(),
         description: form.description.trim() || null,
+        request_type: form.requestType,
         source: form.source,
         severity: form.severity,
         owner_employee_id: employee?.id ?? null,
-        is_extra_work: form.isExtraWork,
+        linked_task_id: form.linkedTaskId || null,
+        is_extra_work: form.requestType === "extra_work" || form.isExtraWork,
         estimated_cost: form.estimatedCost.trim() ? Number(form.estimatedCost) : null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Issue logged");
+      toast.success("Request logged");
       setOpen(false);
-      void queryClient.invalidateQueries({ queryKey: ["maintenance-issues-all"] });
+      invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -133,7 +156,7 @@ function MaintenanceIssuesPage() {
       const { error } = await supabase.from("maintenance_issues").update(patch).eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["maintenance-issues-all"] }),
+    onSuccess: invalidate,
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -154,7 +177,7 @@ function MaintenanceIssuesPage() {
           entity_id: issue.id,
           entity_label: issue.title,
           amount: issue.estimated_cost,
-          summary: `Extra work approval for maintenance issue: ${issue.title}`,
+          summary: `Extra work approval for service request: ${issue.title}`,
           state: "pending_approval",
           requested_by: employee.id,
         })
@@ -169,7 +192,7 @@ function MaintenanceIssuesPage() {
     },
     onSuccess: () => {
       toast.success("Sent for approval");
-      void queryClient.invalidateQueries({ queryKey: ["maintenance-issues-all"] });
+      invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -186,16 +209,17 @@ function MaintenanceIssuesPage() {
   return (
     <>
       <PageHeader
-        title="Maintenance Issues"
-        description="Inspection failures, client requests and staff reports — triaged through to closure. Extra work needs written client approval before routine execution."
+        title="Service Requests"
+        description="Complaints, extra-work and change requests — triaged through to closure. Extra work needs written client approval before routine execution."
         actions={
           canEdit ? (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button>Log issue</Button>
+                <Button>Log request</Button>
               </DialogTrigger>
-              <NewIssueDialog
+              <NewRequestDialog
                 sites={sitesQuery.data ?? []}
+                visits={visitsQuery.data ?? []}
                 pending={create.isPending}
                 onSubmit={(f) => create.mutate(f)}
               />
@@ -221,15 +245,15 @@ function MaintenanceIssuesPage() {
 
       {rows.length === 0 ? (
         <EmptyState
-          title="No issues in this view"
-          description="Change the filter or log an issue."
+          title="No requests in this view"
+          description="Change the filter or log a request."
         />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead className="text-left text-xs tracking-wide text-muted-foreground uppercase">
               <tr className="border-b border-border">
-                <th className="px-4 py-2 font-medium">Issue</th>
+                <th className="px-4 py-2 font-medium">Request</th>
                 <th className="px-4 py-2 font-medium">Site</th>
                 <th className="px-4 py-2 font-medium">Severity</th>
                 <th className="px-4 py-2 text-right font-medium">Est. cost</th>
@@ -246,8 +270,9 @@ function MaintenanceIssuesPage() {
                   <td className="px-4 py-2.5">
                     <p className="font-medium">{i.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {titleCase(i.source)} · {shortDate(i.created_at)}
-                      {i.is_extra_work ? " · Extra work" : ""}
+                      {titleCase(i.request_type)} · {titleCase(i.source)} ·{" "}
+                      {shortDate(i.created_at)}
+                      {i.maintenance_tasks ? ` · Visit: ${i.maintenance_tasks.title}` : ""}
                     </p>
                   </td>
                   <td className="px-4 py-2.5 text-muted-foreground">
@@ -306,19 +331,23 @@ function MaintenanceIssuesPage() {
   );
 }
 
-function NewIssueDialog({
+function NewRequestDialog({
   sites,
+  visits,
   pending,
   onSubmit,
 }: {
   sites: { id: string; name: string }[];
+  visits: { id: string; title: string; planned_date: string }[];
   pending: boolean;
   onSubmit: (form: {
     siteId: string;
     title: string;
     description: string;
+    requestType: string;
     source: string;
     severity: string;
+    linkedTaskId: string;
     isExtraWork: boolean;
     estimatedCost: string;
   }) => void;
@@ -326,17 +355,22 @@ function NewIssueDialog({
   const [siteId, setSiteId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [requestType, setRequestType] = useState("complaint");
   const [source, setSource] = useState("staff_report");
   const [severity, setSeverity] = useState("medium");
+  const [linkedTaskId, setLinkedTaskId] = useState("");
   const [isExtraWork, setIsExtraWork] = useState(false);
   const [estimatedCost, setEstimatedCost] = useState("");
+
+  const showExtraWorkCost = requestType === "extra_work" || isExtraWork;
 
   return (
     <DialogContent className="max-w-md">
       <DialogHeader>
-        <DialogTitle>Log issue</DialogTitle>
+        <DialogTitle>Log request</DialogTitle>
         <DialogDescription>
-          From an inspection failure, client request, staff report or sensor alert.
+          A complaint, extra-work request or change request — from an inspection, client or your own
+          team.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4">
@@ -356,15 +390,30 @@ function NewIssueDialog({
           </Select>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="issue-title">Title</Label>
+          <Label htmlFor="request-title">Title</Label>
           <Input
-            id="issue-title"
+            id="request-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Leaking valve near clubhouse entrance"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <Label>Request type</Label>
+            <Select value={requestType} onValueChange={setRequestType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {REQUEST_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {titleCase(t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid gap-2">
             <Label>Source</Label>
             <Select value={source} onValueChange={setSource}>
@@ -380,6 +429,8 @@ function NewIssueDialog({
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label>Severity</Label>
             <Select value={severity} onValueChange={setSeverity}>
@@ -395,35 +446,52 @@ function NewIssueDialog({
               </SelectContent>
             </Select>
           </div>
+          <div className="grid gap-2">
+            <Label>Linked visit (optional)</Label>
+            <Select value={linkedTaskId} onValueChange={setLinkedTaskId}>
+              <SelectTrigger>
+                <SelectValue placeholder="None" />
+              </SelectTrigger>
+              <SelectContent>
+                {visits.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    {v.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="issue-desc">Description</Label>
+          <Label htmlFor="request-desc">Description</Label>
           <Textarea
-            id="issue-desc"
+            id="request-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
           />
         </div>
-        <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1 accent-primary"
-            checked={isExtraWork}
-            onChange={(e) => setIsExtraWork(e.target.checked)}
-          />
-          <span>
-            This is extra work outside the signed contract scope
-            <span className="block text-xs text-muted-foreground">
-              Needs written client approval before routine execution.
+        {requestType !== "extra_work" ? (
+          <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 accent-primary"
+              checked={isExtraWork}
+              onChange={(e) => setIsExtraWork(e.target.checked)}
+            />
+            <span>
+              This is extra work outside the signed contract scope
+              <span className="block text-xs text-muted-foreground">
+                Needs written client approval before routine execution.
+              </span>
             </span>
-          </span>
-        </label>
-        {isExtraWork ? (
+          </label>
+        ) : null}
+        {showExtraWorkCost ? (
           <div className="grid gap-2">
-            <Label htmlFor="issue-cost">Estimated cost ₹</Label>
+            <Label htmlFor="request-cost">Estimated cost ₹</Label>
             <Input
-              id="issue-cost"
+              id="request-cost"
               inputMode="decimal"
               value={estimatedCost}
               onChange={(e) => setEstimatedCost(e.target.value)}
@@ -439,14 +507,16 @@ function NewIssueDialog({
               siteId,
               title: title.trim(),
               description,
+              requestType,
               source,
               severity,
+              linkedTaskId,
               isExtraWork,
               estimatedCost,
             })
           }
         >
-          {pending ? "Logging…" : "Log issue"}
+          {pending ? "Logging…" : "Log request"}
         </Button>
       </DialogFooter>
     </DialogContent>

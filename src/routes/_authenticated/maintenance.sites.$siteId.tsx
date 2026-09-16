@@ -213,8 +213,8 @@ function MaintenanceSiteDetail() {
       <Tabs defaultValue="zones">
         <TabsList>
           <TabsTrigger value="zones">Zones & assets</TabsTrigger>
-          <TabsTrigger value="tasks">Recent tasks</TabsTrigger>
-          <TabsTrigger value="issues">Issues</TabsTrigger>
+          <TabsTrigger value="tasks">Recent visits</TabsTrigger>
+          <TabsTrigger value="issues">Requests</TabsTrigger>
         </TabsList>
 
         <TabsContent value="zones" className="space-y-4">
@@ -317,7 +317,7 @@ function MaintenanceSiteDetail() {
         <TabsContent value="tasks">
           {tasks.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No tasks yet — create one from Maintenance → Tasks.
+              No visits yet — create one from Maintenance → Visits.
             </p>
           ) : (
             <div className="overflow-hidden rounded-xl border border-border">
@@ -352,7 +352,7 @@ function MaintenanceSiteDetail() {
         <TabsContent value="issues">
           {issues.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No issues yet — create one from Maintenance → Issues.
+              No requests yet — create one from Maintenance → Service Requests.
             </p>
           ) : (
             <div className="overflow-hidden rounded-xl border border-border">
