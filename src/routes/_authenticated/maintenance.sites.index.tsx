@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { shortDate } from "@/lib/format";
+import { shortDate, titleCase } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/maintenance/sites/")({
   head: () => ({
@@ -46,6 +46,16 @@ export const Route = createFileRoute("/_authenticated/maintenance/sites/")({
   component: MaintenanceSitesPage,
 });
 
+const SITE_TYPES = [
+  "residential",
+  "commercial",
+  "campus",
+  "institutional",
+  "hospitality",
+  "government",
+  "other",
+];
+
 function MaintenanceSitesPage() {
   const { employee, can } = useAuth();
   const canEdit = can("care", "edit");
@@ -59,7 +69,7 @@ function MaintenanceSitesPage() {
       const { data, error } = await supabase
         .from("maintenance_sites")
         .select(
-          "id, site_code, name, city, is_external_build, status, clients(name), maintenance_contracts(title), maintenance_zones(id), maintenance_tasks(id, status)",
+          "id, site_code, name, city, site_type, is_external_build, status, clients(name), maintenance_contracts(title), maintenance_zones(id), maintenance_tasks(id, status), area_manager:area_manager_employee_id(full_name)",
         )
         .eq("is_archived", false)
         .order("name");
@@ -73,6 +83,20 @@ function MaintenanceSitesPage() {
     enabled: open,
     queryFn: async () => {
       const { data, error } = await supabase.from("clients").select("id, name").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const employeesQuery = useQuery({
+    queryKey: ["employees-lite"],
+    enabled: open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employees")
+        .select("id, full_name")
+        .eq("is_active", true)
+        .order("full_name");
       if (error) throw error;
       return data;
     },
@@ -99,6 +123,8 @@ function MaintenanceSitesPage() {
       contractId: string;
       city: string;
       isExternal: boolean;
+      siteType: string;
+      areaManagerId: string;
     }) => {
       if (!form.clientId) throw new Error("Pick a client.");
       if (!employee?.company_id)
@@ -115,6 +141,8 @@ function MaintenanceSitesPage() {
         name: form.name.trim(),
         city: form.city.trim() || null,
         is_external_build: form.isExternal,
+        site_type: form.siteType || null,
+        area_manager_employee_id: form.areaManagerId || null,
       });
       if (error) throw error;
     },
@@ -149,6 +177,7 @@ function MaintenanceSitesPage() {
               <NewSiteDialog
                 clients={clientsQuery.data ?? []}
                 contracts={contractsQuery.data ?? []}
+                employees={employeesQuery.data ?? []}
                 pending={create.isPending}
                 onSubmit={(form) => create.mutate(form)}
               />
@@ -200,10 +229,14 @@ function MaintenanceSitesPage() {
                   </div>
                 </dl>
                 <p className="mt-3 text-xs text-muted-foreground">
+                  {s.site_type ? `${titleCase(s.site_type)} · ` : ""}
                   {s.is_external_build ? "Externally built" : "Samak built"}
                   {s.maintenance_contracts
                     ? ` · ${s.maintenance_contracts.title}`
                     : " · No contract linked"}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Area manager: {s.area_manager?.full_name ?? "—"}
                 </p>
               </Link>
             );
@@ -217,11 +250,13 @@ function MaintenanceSitesPage() {
 function NewSiteDialog({
   clients,
   contracts,
+  employees,
   pending,
   onSubmit,
 }: {
   clients: { id: string; name: string }[];
   contracts: { id: string; title: string; client_id: string }[];
+  employees: { id: string; full_name: string }[];
   pending: boolean;
   onSubmit: (form: {
     name: string;
@@ -229,6 +264,8 @@ function NewSiteDialog({
     contractId: string;
     city: string;
     isExternal: boolean;
+    siteType: string;
+    areaManagerId: string;
   }) => void;
 }) {
   const [name, setName] = useState("");
@@ -236,6 +273,8 @@ function NewSiteDialog({
   const [contractId, setContractId] = useState("");
   const [city, setCity] = useState("");
   const [isExternal, setIsExternal] = useState(false);
+  const [siteType, setSiteType] = useState("residential");
+  const [areaManagerId, setAreaManagerId] = useState("");
 
   const relevantContracts = contracts.filter((c) => !clientId || c.client_id === clientId);
 
@@ -294,9 +333,41 @@ function NewSiteDialog({
             </SelectContent>
           </Select>
         </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="site-city">City</Label>
+            <Input id="site-city" value={city} onChange={(e) => setCity(e.target.value)} />
+          </div>
+          <div className="grid gap-2">
+            <Label>Site type</Label>
+            <Select value={siteType} onValueChange={setSiteType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SITE_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {titleCase(t)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <div className="grid gap-2">
-          <Label htmlFor="site-city">City</Label>
-          <Input id="site-city" value={city} onChange={(e) => setCity(e.target.value)} />
+          <Label>Area manager (optional)</Label>
+          <Select value={areaManagerId} onValueChange={setAreaManagerId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Unassigned" />
+            </SelectTrigger>
+            <SelectContent>
+              {employees.map((e) => (
+                <SelectItem key={e.id} value={e.id}>
+                  {e.full_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <label className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
           <input
@@ -316,7 +387,17 @@ function NewSiteDialog({
       <DialogFooter>
         <Button
           disabled={pending || !name.trim() || !clientId}
-          onClick={() => onSubmit({ name: name.trim(), clientId, contractId, city, isExternal })}
+          onClick={() =>
+            onSubmit({
+              name: name.trim(),
+              clientId,
+              contractId,
+              city,
+              isExternal,
+              siteType,
+              areaManagerId,
+            })
+          }
         >
           {pending ? "Adding…" : "Add site"}
         </Button>

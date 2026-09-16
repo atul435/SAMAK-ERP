@@ -1539,6 +1539,7 @@ export type Database = {
           invoice_date: string;
           invoice_type: string;
           is_archived: boolean;
+          maintenance_contract_id: string | null;
           notes: string | null;
           project_id: string | null;
           raised_by: string | null;
@@ -1563,6 +1564,7 @@ export type Database = {
           invoice_date?: string;
           invoice_type?: string;
           is_archived?: boolean;
+          maintenance_contract_id?: string | null;
           notes?: string | null;
           project_id?: string | null;
           raised_by?: string | null;
@@ -1587,6 +1589,7 @@ export type Database = {
           invoice_date?: string;
           invoice_type?: string;
           is_archived?: boolean;
+          maintenance_contract_id?: string | null;
           notes?: string | null;
           project_id?: string | null;
           raised_by?: string | null;
@@ -1598,6 +1601,13 @@ export type Database = {
           updated_by?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "invoices_maintenance_contract_id_fkey";
+            columns: ["maintenance_contract_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_contracts";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "invoices_boq_id_fkey";
             columns: ["boq_id"];
@@ -2338,18 +2348,24 @@ export type Database = {
       maintenance_sites: {
         Row: {
           address: string | null;
+          area_manager_employee_id: string | null;
+          area_uom: string | null;
+          area_value: number | null;
           city: string | null;
           client_id: string;
           company_id: string;
           contract_id: string | null;
           created_at: string;
           created_by: string | null;
+          geo_lat: number | null;
+          geo_lng: number | null;
           id: string;
           is_archived: boolean;
           is_external_build: boolean;
           name: string;
           project_id: string | null;
           site_code: string;
+          site_type: string | null;
           state: string | null;
           status: string;
           updated_at: string;
@@ -2357,18 +2373,24 @@ export type Database = {
         };
         Insert: {
           address?: string | null;
+          area_manager_employee_id?: string | null;
+          area_uom?: string | null;
+          area_value?: number | null;
           city?: string | null;
           client_id: string;
           company_id: string;
           contract_id?: string | null;
           created_at?: string;
           created_by?: string | null;
+          geo_lat?: number | null;
+          geo_lng?: number | null;
           id?: string;
           is_archived?: boolean;
           is_external_build?: boolean;
           name: string;
           project_id?: string | null;
           site_code: string;
+          site_type?: string | null;
           state?: string | null;
           status?: string;
           updated_at?: string;
@@ -2376,18 +2398,24 @@ export type Database = {
         };
         Update: {
           address?: string | null;
+          area_manager_employee_id?: string | null;
+          area_uom?: string | null;
+          area_value?: number | null;
           city?: string | null;
           client_id?: string;
           company_id?: string;
           contract_id?: string | null;
           created_at?: string;
           created_by?: string | null;
+          geo_lat?: number | null;
+          geo_lng?: number | null;
           id?: string;
           is_archived?: boolean;
           is_external_build?: boolean;
           name?: string;
           project_id?: string | null;
           site_code?: string;
+          site_type?: string | null;
           state?: string | null;
           status?: string;
           updated_at?: string;
@@ -2420,6 +2448,13 @@ export type Database = {
             columns: ["project_id"];
             isOneToOne: false;
             referencedRelation: "projects";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_sites_area_manager_employee_id_fkey";
+            columns: ["area_manager_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
             referencedColumns: ["id"];
           },
         ];
@@ -2625,11 +2660,16 @@ export type Database = {
         Row: {
           assigned_crew: string | null;
           assigned_employee_id: string | null;
+          contract_id: string | null;
           created_at: string;
+          crew_id: string | null;
           end_date: string | null;
+          expected_duration_minutes: number | null;
           frequency: string;
           id: string;
           override_reason: string | null;
+          required_crew_size: number | null;
+          required_skills: string | null;
           service_template_id: string | null;
           site_id: string;
           start_date: string;
@@ -2641,11 +2681,16 @@ export type Database = {
         Insert: {
           assigned_crew?: string | null;
           assigned_employee_id?: string | null;
+          contract_id?: string | null;
           created_at?: string;
+          crew_id?: string | null;
           end_date?: string | null;
+          expected_duration_minutes?: number | null;
           frequency: string;
           id?: string;
           override_reason?: string | null;
+          required_crew_size?: number | null;
+          required_skills?: string | null;
           service_template_id?: string | null;
           site_id: string;
           start_date: string;
@@ -2657,11 +2702,16 @@ export type Database = {
         Update: {
           assigned_crew?: string | null;
           assigned_employee_id?: string | null;
+          contract_id?: string | null;
           created_at?: string;
+          crew_id?: string | null;
           end_date?: string | null;
+          expected_duration_minutes?: number | null;
           frequency?: string;
           id?: string;
           override_reason?: string | null;
+          required_crew_size?: number | null;
+          required_skills?: string | null;
           service_template_id?: string | null;
           site_id?: string;
           start_date?: string;
@@ -2699,12 +2749,29 @@ export type Database = {
             referencedRelation: "employees";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "maintenance_schedules_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_contracts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_schedules_crew_id_fkey";
+            columns: ["crew_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_crews";
+            referencedColumns: ["id"];
+          },
         ];
       };
       maintenance_tasks: {
         Row: {
+          actual_end_time: string | null;
+          actual_start_time: string | null;
           assignee_employee_id: string | null;
           created_at: string;
+          crew_id: string | null;
           id: string;
           planned_date: string;
           schedule_id: string | null;
@@ -2716,11 +2783,15 @@ export type Database = {
           task_type: string;
           title: string;
           updated_at: string;
+          weather_impact: string | null;
           zone_id: string | null;
         };
         Insert: {
+          actual_end_time?: string | null;
+          actual_start_time?: string | null;
           assignee_employee_id?: string | null;
           created_at?: string;
+          crew_id?: string | null;
           id?: string;
           planned_date: string;
           schedule_id?: string | null;
@@ -2732,11 +2803,15 @@ export type Database = {
           task_type?: string;
           title: string;
           updated_at?: string;
+          weather_impact?: string | null;
           zone_id?: string | null;
         };
         Update: {
+          actual_end_time?: string | null;
+          actual_start_time?: string | null;
           assignee_employee_id?: string | null;
           created_at?: string;
+          crew_id?: string | null;
           id?: string;
           planned_date?: string;
           schedule_id?: string | null;
@@ -2748,6 +2823,7 @@ export type Database = {
           task_type?: string;
           title?: string;
           updated_at?: string;
+          weather_impact?: string | null;
           zone_id?: string | null;
         };
         Relationships: [
@@ -2791,6 +2867,13 @@ export type Database = {
             columns: ["supervisor_reviewed_by"];
             isOneToOne: false;
             referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_tasks_crew_id_fkey";
+            columns: ["crew_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_crews";
             referencedColumns: ["id"];
           },
         ];
@@ -2875,6 +2958,7 @@ export type Database = {
       };
       maintenance_inspections: {
         Row: {
+          contract_id: string | null;
           created_at: string;
           id: string;
           inspection_date: string;
@@ -2887,6 +2971,7 @@ export type Database = {
           zone_id: string | null;
         };
         Insert: {
+          contract_id?: string | null;
           created_at?: string;
           id?: string;
           inspection_date?: string;
@@ -2899,6 +2984,7 @@ export type Database = {
           zone_id?: string | null;
         };
         Update: {
+          contract_id?: string | null;
           created_at?: string;
           id?: string;
           inspection_date?: string;
@@ -2911,6 +2997,13 @@ export type Database = {
           zone_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "maintenance_inspections_contract_id_fkey";
+            columns: ["contract_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_contracts";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "maintenance_inspections_site_id_fkey";
             columns: ["site_id"];
@@ -3104,8 +3197,10 @@ export type Database = {
           id: string;
           is_extra_work: boolean;
           issue_code: string | null;
+          linked_task_id: string | null;
           owner_employee_id: string | null;
           reopen_count: number;
+          request_type: string;
           severity: string;
           site_id: string;
           source: string;
@@ -3125,8 +3220,10 @@ export type Database = {
           id?: string;
           is_extra_work?: boolean;
           issue_code?: string | null;
+          linked_task_id?: string | null;
           owner_employee_id?: string | null;
           reopen_count?: number;
+          request_type?: string;
           severity?: string;
           site_id: string;
           source?: string;
@@ -3146,8 +3243,10 @@ export type Database = {
           id?: string;
           is_extra_work?: boolean;
           issue_code?: string | null;
+          linked_task_id?: string | null;
           owner_employee_id?: string | null;
           reopen_count?: number;
+          request_type?: string;
           severity?: string;
           site_id?: string;
           source?: string;
@@ -3158,6 +3257,13 @@ export type Database = {
           zone_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "maintenance_issues_linked_task_id_fkey";
+            columns: ["linked_task_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_tasks";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "maintenance_issues_site_id_fkey";
             columns: ["site_id"];
@@ -3286,6 +3392,348 @@ export type Database = {
             columns: ["irrigation_zone_id"];
             isOneToOne: false;
             referencedRelation: "irrigation_zones";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_crews: {
+        Row: {
+          id: string;
+          company_id: string;
+          crew_code: string;
+          name: string;
+          area_manager_employee_id: string | null;
+          supervisor_employee_id: string | null;
+          default_region: string | null;
+          status: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          crew_code: string;
+          name: string;
+          area_manager_employee_id?: string | null;
+          supervisor_employee_id?: string | null;
+          default_region?: string | null;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          crew_code?: string;
+          name?: string;
+          area_manager_employee_id?: string | null;
+          supervisor_employee_id?: string | null;
+          default_region?: string | null;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_crews_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_crews_area_manager_employee_id_fkey";
+            columns: ["area_manager_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_crews_supervisor_employee_id_fkey";
+            columns: ["supervisor_employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_crew_members: {
+        Row: {
+          id: string;
+          crew_id: string;
+          employee_id: string;
+          role_on_crew: string | null;
+          joined_date: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          crew_id: string;
+          employee_id: string;
+          role_on_crew?: string | null;
+          joined_date?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          crew_id?: string;
+          employee_id?: string;
+          role_on_crew?: string | null;
+          joined_date?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_crew_members_crew_id_fkey";
+            columns: ["crew_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_crews";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_crew_members_employee_id_fkey";
+            columns: ["employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_equipment: {
+        Row: {
+          id: string;
+          company_id: string;
+          equipment_code: string;
+          equipment_type: string;
+          make: string | null;
+          model: string | null;
+          serial_number: string | null;
+          purchase_date: string | null;
+          maintenance_interval_hours: number | null;
+          total_hours_used: number;
+          status: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          equipment_code: string;
+          equipment_type: string;
+          make?: string | null;
+          model?: string | null;
+          serial_number?: string | null;
+          purchase_date?: string | null;
+          maintenance_interval_hours?: number | null;
+          total_hours_used?: number;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          equipment_code?: string;
+          equipment_type?: string;
+          make?: string | null;
+          model?: string | null;
+          serial_number?: string | null;
+          purchase_date?: string | null;
+          maintenance_interval_hours?: number | null;
+          total_hours_used?: number;
+          status?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_equipment_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_crew_equipment: {
+        Row: {
+          id: string;
+          crew_id: string;
+          equipment_id: string;
+          assigned_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          crew_id: string;
+          equipment_id: string;
+          assigned_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          crew_id?: string;
+          equipment_id?: string;
+          assigned_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_crew_equipment_crew_id_fkey";
+            columns: ["crew_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_crews";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_crew_equipment_equipment_id_fkey";
+            columns: ["equipment_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_equipment";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_crew_sites: {
+        Row: {
+          id: string;
+          crew_id: string;
+          site_id: string;
+          assigned_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          crew_id: string;
+          site_id: string;
+          assigned_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          crew_id?: string;
+          site_id?: string;
+          assigned_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_crew_sites_crew_id_fkey";
+            columns: ["crew_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_crews";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_crew_sites_site_id_fkey";
+            columns: ["site_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_sites";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_material_usage: {
+        Row: {
+          id: string;
+          task_id: string;
+          material_id: string | null;
+          quantity_used: number;
+          unit_cost: number | null;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          task_id: string;
+          material_id?: string | null;
+          quantity_used: number;
+          unit_cost?: number | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          task_id?: string;
+          material_id?: string | null;
+          quantity_used?: number;
+          unit_cost?: number | null;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_material_usage_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_material_usage_material_id_fkey";
+            columns: ["material_id"];
+            isOneToOne: false;
+            referencedRelation: "materials";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_equipment_usage: {
+        Row: {
+          id: string;
+          task_id: string;
+          equipment_id: string | null;
+          hours_used: number;
+          notes: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          task_id: string;
+          equipment_id?: string | null;
+          hours_used: number;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          task_id?: string;
+          equipment_id?: string | null;
+          hours_used?: number;
+          notes?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_equipment_usage_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_tasks";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_equipment_usage_equipment_id_fkey";
+            columns: ["equipment_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_equipment";
             referencedColumns: ["id"];
           },
         ];

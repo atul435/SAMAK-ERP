@@ -73,6 +73,8 @@ export const NAVIGATION: NavGroup[] = [
       { label: "Overview", to: "/maintenance", module: "care" },
       { label: "Contracts", to: "/maintenance/contracts", module: "care" },
       { label: "Sites", to: "/maintenance/sites", module: "care" },
+      { label: "Crews", to: "/maintenance/crews", module: "care" },
+      { label: "Equipment", to: "/maintenance/equipment", module: "care" },
       { label: "Schedules", to: "/maintenance/schedules", module: "care" },
       { label: "Tasks", to: "/maintenance/tasks", module: "care" },
       { label: "Inspections", to: "/maintenance/inspections", module: "care" },

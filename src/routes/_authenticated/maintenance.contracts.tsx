@@ -10,6 +10,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/common/EmptyS
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -34,10 +35,10 @@ export const Route = createFileRoute("/_authenticated/maintenance/contracts")({
       { title: "Maintenance Contracts — EnvironIQ" },
       {
         name: "description",
-        content: "AMC and managed-landscape contracts: scope, fee, SLA and renewal dates.",
+        content: "AMC, seasonal and project-based contracts: scope, SLAs, billing and obligations.",
       },
       { property: "og:title", content: "Maintenance Contracts — EnvironIQ" },
-      { property: "og:description", content: "Every signed maintenance contract, scope and fee." },
+      { property: "og:description", content: "Every signed maintenance contract, in full." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -47,11 +48,32 @@ export const Route = createFileRoute("/_authenticated/maintenance/contracts")({
 
 const STATUSES = ["draft", "active", "expired", "terminated"];
 
+type ContractDetails = {
+  renewal_notice_days: string;
+  escalation_clause: string;
+  gst_percent: string;
+  billing_terms: string;
+  seasonal_allowance: string;
+  plant_replacement_policy: string;
+  response_sla_hours: string;
+  resolution_sla_hours: string;
+  working_hours: string;
+  material_cap: string;
+  equipment_responsibility: string;
+  client_obligations: string;
+  access_restrictions: string;
+  approval_contact: string;
+};
+
 function MaintenanceContractsPage() {
   const { employee, can } = useAuth();
   const canEdit = can("care", "edit");
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+
+  const invalidate = () =>
+    void queryClient.invalidateQueries({ queryKey: ["maintenance-contracts"] });
 
   const query = useQuery({
     queryKey: ["maintenance-contracts"],
@@ -59,7 +81,7 @@ function MaintenanceContractsPage() {
       const { data, error } = await supabase
         .from("maintenance_contracts")
         .select(
-          "id, contract_code, title, status, start_date, end_date, monthly_fee, frequency, clients(name), maintenance_sites(id)",
+          "id, contract_code, title, status, start_date, end_date, monthly_fee, frequency, response_sla_hours, resolution_sla_hours, billing_terms, gst_percent, renewal_notice_days, escalation_clause, seasonal_allowance, plant_replacement_policy, working_hours, material_cap, equipment_responsibility, client_obligations, access_restrictions, approval_contact, clients(name), maintenance_sites(id)",
         )
         .eq("is_archived", false)
         .order("updated_at", { ascending: false });
@@ -86,6 +108,10 @@ function MaintenanceContractsPage() {
       endDate: string;
       monthlyFee: string;
       frequency: string;
+      responseSlaHours: string;
+      resolutionSlaHours: string;
+      gstPercent: string;
+      billingTerms: string;
     }) => {
       if (!form.clientId) throw new Error("Pick a client.");
       if (!employee?.company_id)
@@ -103,13 +129,19 @@ function MaintenanceContractsPage() {
         end_date: form.endDate || null,
         monthly_fee: form.monthlyFee.trim() ? Number(form.monthlyFee) : null,
         frequency: form.frequency.trim() || null,
+        response_sla_hours: form.responseSlaHours.trim() ? Number(form.responseSlaHours) : null,
+        resolution_sla_hours: form.resolutionSlaHours.trim()
+          ? Number(form.resolutionSlaHours)
+          : null,
+        gst_percent: form.gstPercent.trim() ? Number(form.gstPercent) : null,
+        billing_terms: form.billingTerms.trim() || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Contract added");
       setOpen(false);
-      void queryClient.invalidateQueries({ queryKey: ["maintenance-contracts"] });
+      invalidate();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -122,7 +154,44 @@ function MaintenanceContractsPage() {
         .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["maintenance-contracts"] }),
+    onSuccess: invalidate,
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const saveDetails = useMutation({
+    mutationFn: async ({ id, details }: { id: string; details: ContractDetails }) => {
+      const { error } = await supabase
+        .from("maintenance_contracts")
+        .update({
+          renewal_notice_days: details.renewal_notice_days.trim()
+            ? Number(details.renewal_notice_days)
+            : null,
+          escalation_clause: details.escalation_clause.trim() || null,
+          gst_percent: details.gst_percent.trim() ? Number(details.gst_percent) : null,
+          billing_terms: details.billing_terms.trim() || null,
+          seasonal_allowance: details.seasonal_allowance.trim() || null,
+          plant_replacement_policy: details.plant_replacement_policy.trim() || null,
+          response_sla_hours: details.response_sla_hours.trim()
+            ? Number(details.response_sla_hours)
+            : null,
+          resolution_sla_hours: details.resolution_sla_hours.trim()
+            ? Number(details.resolution_sla_hours)
+            : null,
+          working_hours: details.working_hours.trim() || null,
+          material_cap: details.material_cap.trim() ? Number(details.material_cap) : null,
+          equipment_responsibility: details.equipment_responsibility.trim() || null,
+          client_obligations: details.client_obligations.trim() || null,
+          access_restrictions: details.access_restrictions.trim() || null,
+          approval_contact: details.approval_contact.trim() || null,
+        })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Contract details saved");
+      setEditId(null);
+      invalidate();
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -130,12 +199,13 @@ function MaintenanceContractsPage() {
   if (query.isError) return <ErrorState message={(query.error as Error).message} />;
 
   const rows = query.data ?? [];
+  const editing = rows.find((r) => r.id === editId);
 
   return (
     <>
       <PageHeader
         title="Maintenance Contracts"
-        description="AMC and managed-landscape agreements — scope, fee, SLA and renewal terms."
+        description="AMC, seasonal and project-based agreements — SLAs, billing terms and obligations, not just fee and dates."
         actions={
           canEdit ? (
             <Dialog open={open} onOpenChange={setOpen}>
@@ -164,9 +234,11 @@ function MaintenanceContractsPage() {
                 <th className="px-4 py-2 font-medium">Contract</th>
                 <th className="px-4 py-2 font-medium">Client</th>
                 <th className="px-4 py-2 font-medium">Sites</th>
+                <th className="px-4 py-2 font-medium">SLA (resp / resolve)</th>
                 <th className="px-4 py-2 text-right font-medium">Monthly fee</th>
                 <th className="px-4 py-2 font-medium">Ends</th>
                 <th className="px-4 py-2 font-medium">Status</th>
+                {canEdit ? <th className="px-4 py-2" /> : null}
               </tr>
             </thead>
             <tbody>
@@ -185,6 +257,9 @@ function MaintenanceContractsPage() {
                   <td className="px-4 py-2.5 text-muted-foreground">{c.clients?.name ?? "—"}</td>
                   <td className="px-4 py-2.5 text-numeric text-muted-foreground">
                     {(c.maintenance_sites ?? []).length}
+                  </td>
+                  <td className="px-4 py-2.5 text-numeric text-muted-foreground">
+                    {c.response_sla_hours ?? "—"}h / {c.resolution_sla_hours ?? "—"}h
                   </td>
                   <td className="px-4 py-2.5 text-right text-numeric">
                     {c.monthly_fee ? inr(Number(c.monthly_fee), true) : "—"}
@@ -213,12 +288,28 @@ function MaintenanceContractsPage() {
                       <StatusBadge value={c.status} />
                     )}
                   </td>
+                  {canEdit ? (
+                    <td className="px-4 py-2.5 text-right">
+                      <Button variant="ghost" size="sm" onClick={() => setEditId(c.id)}>
+                        Edit terms
+                      </Button>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {editing ? (
+        <EditContractDetailsDialog
+          contract={editing}
+          pending={saveDetails.isPending}
+          onOpenChange={(o) => !o && setEditId(null)}
+          onSubmit={(details) => saveDetails.mutate({ id: editing.id, details })}
+        />
+      ) : null}
     </>
   );
 }
@@ -237,6 +328,10 @@ function NewContractDialog({
     endDate: string;
     monthlyFee: string;
     frequency: string;
+    responseSlaHours: string;
+    resolutionSlaHours: string;
+    gstPercent: string;
+    billingTerms: string;
   }) => void;
 }) {
   const [title, setTitle] = useState("");
@@ -245,14 +340,18 @@ function NewContractDialog({
   const [endDate, setEndDate] = useState("");
   const [monthlyFee, setMonthlyFee] = useState("");
   const [frequency, setFrequency] = useState("");
+  const [responseSlaHours, setResponseSlaHours] = useState("");
+  const [resolutionSlaHours, setResolutionSlaHours] = useState("");
+  const [gstPercent, setGstPercent] = useState("18");
+  const [billingTerms, setBillingTerms] = useState("");
 
   return (
     <DialogContent className="max-w-md">
       <DialogHeader>
         <DialogTitle>Add maintenance contract</DialogTitle>
         <DialogDescription>
-          Core commercial terms now — scope lines, SLAs and the rest of the field set can be added
-          once the contract is signed.
+          Core commercial terms and SLAs now — obligations, access and the rest can be added from
+          "Edit terms" once the contract is signed.
         </DialogDescription>
       </DialogHeader>
       <div className="grid gap-4">
@@ -320,17 +419,254 @@ function NewContractDialog({
             />
           </div>
         </div>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="contract-response-sla">Response SLA (hrs)</Label>
+            <Input
+              id="contract-response-sla"
+              inputMode="decimal"
+              value={responseSlaHours}
+              onChange={(e) => setResponseSlaHours(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="contract-resolution-sla">Resolution SLA (hrs)</Label>
+            <Input
+              id="contract-resolution-sla"
+              inputMode="decimal"
+              value={resolutionSlaHours}
+              onChange={(e) => setResolutionSlaHours(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="contract-gst">GST %</Label>
+            <Input
+              id="contract-gst"
+              inputMode="decimal"
+              value={gstPercent}
+              onChange={(e) => setGstPercent(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="contract-billing">Billing terms</Label>
+          <Textarea
+            id="contract-billing"
+            value={billingTerms}
+            onChange={(e) => setBillingTerms(e.target.value)}
+            rows={2}
+            placeholder="Monthly in advance, 15-day payment terms…"
+          />
+        </div>
       </div>
       <DialogFooter>
         <Button
           disabled={pending || !title.trim() || !clientId}
           onClick={() =>
-            onSubmit({ title: title.trim(), clientId, startDate, endDate, monthlyFee, frequency })
+            onSubmit({
+              title: title.trim(),
+              clientId,
+              startDate,
+              endDate,
+              monthlyFee,
+              frequency,
+              responseSlaHours,
+              resolutionSlaHours,
+              gstPercent,
+              billingTerms,
+            })
           }
         >
           {pending ? "Adding…" : "Add contract"}
         </Button>
       </DialogFooter>
     </DialogContent>
+  );
+}
+
+function EditContractDetailsDialog({
+  contract,
+  pending,
+  onOpenChange,
+  onSubmit,
+}: {
+  contract: {
+    title: string;
+    renewal_notice_days: number | null;
+    escalation_clause: string | null;
+    gst_percent: number | null;
+    billing_terms: string | null;
+    seasonal_allowance: string | null;
+    plant_replacement_policy: string | null;
+    response_sla_hours: number | null;
+    resolution_sla_hours: number | null;
+    working_hours: string | null;
+    material_cap: number | null;
+    equipment_responsibility: string | null;
+    client_obligations: string | null;
+    access_restrictions: string | null;
+    approval_contact: string | null;
+  };
+  pending: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (details: ContractDetails) => void;
+}) {
+  const [form, setForm] = useState<ContractDetails>({
+    renewal_notice_days: contract.renewal_notice_days?.toString() ?? "",
+    escalation_clause: contract.escalation_clause ?? "",
+    gst_percent: contract.gst_percent?.toString() ?? "",
+    billing_terms: contract.billing_terms ?? "",
+    seasonal_allowance: contract.seasonal_allowance ?? "",
+    plant_replacement_policy: contract.plant_replacement_policy ?? "",
+    response_sla_hours: contract.response_sla_hours?.toString() ?? "",
+    resolution_sla_hours: contract.resolution_sla_hours?.toString() ?? "",
+    working_hours: contract.working_hours ?? "",
+    material_cap: contract.material_cap?.toString() ?? "",
+    equipment_responsibility: contract.equipment_responsibility ?? "",
+    client_obligations: contract.client_obligations ?? "",
+    access_restrictions: contract.access_restrictions ?? "",
+    approval_contact: contract.approval_contact ?? "",
+  });
+
+  const set = (key: keyof ContractDetails) => (value: string) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  return (
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Contract terms — {contract.title}</DialogTitle>
+          <DialogDescription>
+            SLAs, billing, seasonal and access terms. Nothing here is required to save.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="grid gap-2">
+              <Label>Response SLA (hrs)</Label>
+              <Input
+                inputMode="decimal"
+                value={form.response_sla_hours}
+                onChange={(e) => set("response_sla_hours")(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Resolution SLA (hrs)</Label>
+              <Input
+                inputMode="decimal"
+                value={form.resolution_sla_hours}
+                onChange={(e) => set("resolution_sla_hours")(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>GST %</Label>
+              <Input
+                inputMode="decimal"
+                value={form.gst_percent}
+                onChange={(e) => set("gst_percent")(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Renewal notice (days)</Label>
+              <Input
+                inputMode="numeric"
+                value={form.renewal_notice_days}
+                onChange={(e) => set("renewal_notice_days")(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Material cap ₹ / month</Label>
+              <Input
+                inputMode="decimal"
+                value={form.material_cap}
+                onChange={(e) => set("material_cap")(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label>Working hours</Label>
+            <Input
+              value={form.working_hours}
+              onChange={(e) => set("working_hours")(e.target.value)}
+              placeholder="Mon–Sat, 7am–4pm"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Billing terms</Label>
+            <Textarea
+              rows={2}
+              value={form.billing_terms}
+              onChange={(e) => set("billing_terms")(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Escalation clause</Label>
+            <Textarea
+              rows={2}
+              value={form.escalation_clause}
+              onChange={(e) => set("escalation_clause")(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Seasonal allowance</Label>
+            <Textarea
+              rows={2}
+              value={form.seasonal_allowance}
+              onChange={(e) => set("seasonal_allowance")(e.target.value)}
+              placeholder="Extra visits during monsoon, reduced mowing in winter…"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Plant replacement policy</Label>
+            <Textarea
+              rows={2}
+              value={form.plant_replacement_policy}
+              onChange={(e) => set("plant_replacement_policy")(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Equipment responsibility</Label>
+            <Textarea
+              rows={2}
+              value={form.equipment_responsibility}
+              onChange={(e) => set("equipment_responsibility")(e.target.value)}
+              placeholder="Samak supplies all equipment / client provides water and power…"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Client obligations</Label>
+            <Textarea
+              rows={2}
+              value={form.client_obligations}
+              onChange={(e) => set("client_obligations")(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Access restrictions</Label>
+            <Textarea
+              rows={2}
+              value={form.access_restrictions}
+              onChange={(e) => set("access_restrictions")(e.target.value)}
+              placeholder="Security clearance needed, no access before 8am…"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label>Client approval contact</Label>
+            <Input
+              value={form.approval_contact}
+              onChange={(e) => set("approval_contact")(e.target.value)}
+              placeholder="Name, phone or email for sign-off on extra work"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button disabled={pending} onClick={() => onSubmit(form)}>
+            {pending ? "Saving…" : "Save terms"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
