@@ -3738,6 +3738,133 @@ export type Database = {
           },
         ];
       };
+      maintenance_attendance: {
+        Row: {
+          id: string;
+          company_id: string;
+          employee_id: string;
+          attendance_date: string;
+          status: string;
+          check_in_time: string | null;
+          check_out_time: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          employee_id: string;
+          attendance_date?: string;
+          status?: string;
+          check_in_time?: string | null;
+          check_out_time?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          employee_id?: string;
+          attendance_date?: string;
+          status?: string;
+          check_in_time?: string | null;
+          check_out_time?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_attendance_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_attendance_employee_id_fkey";
+            columns: ["employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      maintenance_timesheets: {
+        Row: {
+          id: string;
+          company_id: string;
+          employee_id: string;
+          task_id: string | null;
+          work_date: string;
+          hours_worked: number;
+          overtime_hours: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+          updated_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          company_id: string;
+          employee_id: string;
+          task_id?: string | null;
+          work_date?: string;
+          hours_worked: number;
+          overtime_hours?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          company_id?: string;
+          employee_id?: string;
+          task_id?: string | null;
+          work_date?: string;
+          hours_worked?: number;
+          overtime_hours?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_timesheets_company_id_fkey";
+            columns: ["company_id"];
+            isOneToOne: false;
+            referencedRelation: "companies";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_timesheets_employee_id_fkey";
+            columns: ["employee_id"];
+            isOneToOne: false;
+            referencedRelation: "employees";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "maintenance_timesheets_task_id_fkey";
+            columns: ["task_id"];
+            isOneToOne: false;
+            referencedRelation: "maintenance_tasks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       materials: {
         Row: {
           category: string;
