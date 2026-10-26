@@ -91,6 +91,7 @@ function EquipmentPage() {
       serialNumber: string;
       purchaseDate: string;
       maintenanceIntervalHours: string;
+      hourlyCostRate: string;
     }) => {
       if (!employee?.company_id)
         throw new Error("Your employee profile is not linked to a company.");
@@ -109,6 +110,7 @@ function EquipmentPage() {
         maintenance_interval_hours: form.maintenanceIntervalHours.trim()
           ? Number(form.maintenanceIntervalHours)
           : null,
+        hourly_cost_rate: form.hourlyCostRate.trim() ? Number(form.hourlyCostRate) : null,
       });
       if (error) throw error;
     },
@@ -243,8 +245,10 @@ function NewEquipmentDialog({
     serialNumber: string;
     purchaseDate: string;
     maintenanceIntervalHours: string;
+    hourlyCostRate: string;
   }) => void;
 }) {
+  const [hourlyCostRate, setHourlyCostRate] = useState("");
   const [equipmentType, setEquipmentType] = useState("mower");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
@@ -312,6 +316,16 @@ function NewEquipmentDialog({
             />
           </div>
         </div>
+        <div className="grid gap-2">
+          <Label htmlFor="eq-rate">Running cost per hour (₹, optional)</Label>
+          <Input
+            id="eq-rate"
+            inputMode="decimal"
+            value={hourlyCostRate}
+            onChange={(e) => setHourlyCostRate(e.target.value)}
+            placeholder="Fuel, wear and depreciation per hour of use"
+          />
+        </div>
       </div>
       <DialogFooter>
         <Button
@@ -324,6 +338,7 @@ function NewEquipmentDialog({
               serialNumber,
               purchaseDate,
               maintenanceIntervalHours,
+              hourlyCostRate,
             })
           }
         >

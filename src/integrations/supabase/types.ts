@@ -3514,6 +3514,7 @@ export type Database = {
           company_id: string;
           equipment_code: string;
           equipment_type: string;
+          hourly_cost_rate: number | null;
           make: string | null;
           model: string | null;
           serial_number: string | null;
@@ -3532,6 +3533,7 @@ export type Database = {
           company_id: string;
           equipment_code: string;
           equipment_type: string;
+          hourly_cost_rate?: number | null;
           make?: string | null;
           model?: string | null;
           serial_number?: string | null;
@@ -3550,6 +3552,7 @@ export type Database = {
           company_id?: string;
           equipment_code?: string;
           equipment_type?: string;
+          hourly_cost_rate?: number | null;
           make?: string | null;
           model?: string | null;
           serial_number?: string | null;
@@ -6461,6 +6464,26 @@ export type Database = {
         Returns: boolean;
       };
       is_admin: { Args: never; Returns: boolean };
+      maintenance_contract_costing: {
+        Args: {
+          p_month_start: string;
+          p_overtime_multiplier?: number;
+          p_standard_monthly_hours?: number;
+        };
+        Returns: {
+          client_name: string;
+          contract_code: string;
+          contract_id: string;
+          equipment_cost: number;
+          labour_cost: number | null;
+          labour_hours: number;
+          labour_withheld: boolean;
+          material_cost: number;
+          revenue: number;
+          title: string;
+          visit_count: number;
+        }[];
+      };
       my_company_id: { Args: never; Returns: string };
       my_employee_id: { Args: never; Returns: string };
       my_portal_client_id: { Args: never; Returns: string };

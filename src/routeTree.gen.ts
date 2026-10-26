@@ -42,6 +42,7 @@ import { Route as AuthenticatedJarvisLogRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
 import { Route as AuthenticatedMaintenanceAttendanceRouteImport } from './routes/_authenticated/maintenance.attendance'
 import { Route as AuthenticatedMaintenanceContractsRouteImport } from './routes/_authenticated/maintenance.contracts'
+import { Route as AuthenticatedMaintenanceCostingRouteImport } from './routes/_authenticated/maintenance.costing'
 import { Route as AuthenticatedMaintenanceCrewsRouteImport } from './routes/_authenticated/maintenance.crews'
 import { Route as AuthenticatedMaintenanceEquipmentRouteImport } from './routes/_authenticated/maintenance.equipment'
 import { Route as AuthenticatedMaintenanceInspectionsRouteImport } from './routes/_authenticated/maintenance.inspections'
@@ -250,6 +251,12 @@ const AuthenticatedMaintenanceContractsRoute =
     path: '/maintenance/contracts',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMaintenanceCostingRoute =
+  AuthenticatedMaintenanceCostingRouteImport.update({
+    id: '/maintenance/costing',
+    path: '/maintenance/costing',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMaintenanceCrewsRoute =
   AuthenticatedMaintenanceCrewsRouteImport.update({
     id: '/maintenance/crews',
@@ -448,6 +455,7 @@ export interface FileRoutesByFullPath {
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/maintenance/attendance': typeof AuthenticatedMaintenanceAttendanceRoute
   '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/maintenance/costing': typeof AuthenticatedMaintenanceCostingRoute
   '/maintenance/crews': typeof AuthenticatedMaintenanceCrewsRoute
   '/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
@@ -511,6 +519,7 @@ export interface FileRoutesByTo {
   '/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/maintenance/attendance': typeof AuthenticatedMaintenanceAttendanceRoute
   '/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/maintenance/costing': typeof AuthenticatedMaintenanceCostingRoute
   '/maintenance/crews': typeof AuthenticatedMaintenanceCrewsRoute
   '/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
@@ -577,6 +586,7 @@ export interface FileRoutesById {
   '/_authenticated/jarvis/log': typeof AuthenticatedJarvisLogRoute
   '/_authenticated/maintenance/attendance': typeof AuthenticatedMaintenanceAttendanceRoute
   '/_authenticated/maintenance/contracts': typeof AuthenticatedMaintenanceContractsRoute
+  '/_authenticated/maintenance/costing': typeof AuthenticatedMaintenanceCostingRoute
   '/_authenticated/maintenance/crews': typeof AuthenticatedMaintenanceCrewsRoute
   '/_authenticated/maintenance/equipment': typeof AuthenticatedMaintenanceEquipmentRoute
   '/_authenticated/maintenance/inspections': typeof AuthenticatedMaintenanceInspectionsRoute
@@ -642,6 +652,7 @@ export interface FileRouteTypes {
     | '/jarvis/log'
     | '/maintenance/attendance'
     | '/maintenance/contracts'
+    | '/maintenance/costing'
     | '/maintenance/crews'
     | '/maintenance/equipment'
     | '/maintenance/inspections'
@@ -705,6 +716,7 @@ export interface FileRouteTypes {
     | '/jarvis/log'
     | '/maintenance/attendance'
     | '/maintenance/contracts'
+    | '/maintenance/costing'
     | '/maintenance/crews'
     | '/maintenance/equipment'
     | '/maintenance/inspections'
@@ -770,6 +782,7 @@ export interface FileRouteTypes {
     | '/_authenticated/jarvis/log'
     | '/_authenticated/maintenance/attendance'
     | '/_authenticated/maintenance/contracts'
+    | '/_authenticated/maintenance/costing'
     | '/_authenticated/maintenance/crews'
     | '/_authenticated/maintenance/equipment'
     | '/_authenticated/maintenance/inspections'
@@ -1052,6 +1065,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceContractsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/maintenance/costing': {
+      id: '/_authenticated/maintenance/costing'
+      path: '/maintenance/costing'
+      fullPath: '/maintenance/costing'
+      preLoaderRoute: typeof AuthenticatedMaintenanceCostingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/maintenance/crews': {
       id: '/_authenticated/maintenance/crews'
       path: '/maintenance/crews'
@@ -1286,6 +1306,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJarvisLogRoute: typeof AuthenticatedJarvisLogRoute
   AuthenticatedMaintenanceAttendanceRoute: typeof AuthenticatedMaintenanceAttendanceRoute
   AuthenticatedMaintenanceContractsRoute: typeof AuthenticatedMaintenanceContractsRoute
+  AuthenticatedMaintenanceCostingRoute: typeof AuthenticatedMaintenanceCostingRoute
   AuthenticatedMaintenanceCrewsRoute: typeof AuthenticatedMaintenanceCrewsRoute
   AuthenticatedMaintenanceEquipmentRoute: typeof AuthenticatedMaintenanceEquipmentRoute
   AuthenticatedMaintenanceInspectionsRoute: typeof AuthenticatedMaintenanceInspectionsRoute
@@ -1341,6 +1362,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMaintenanceAttendanceRoute,
   AuthenticatedMaintenanceContractsRoute:
     AuthenticatedMaintenanceContractsRoute,
+  AuthenticatedMaintenanceCostingRoute: AuthenticatedMaintenanceCostingRoute,
   AuthenticatedMaintenanceCrewsRoute: AuthenticatedMaintenanceCrewsRoute,
   AuthenticatedMaintenanceEquipmentRoute:
     AuthenticatedMaintenanceEquipmentRoute,

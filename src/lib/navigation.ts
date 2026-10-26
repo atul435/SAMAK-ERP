@@ -83,6 +83,7 @@ export const NAVIGATION: NavGroup[] = [
       { label: "Service Requests", to: "/maintenance/requests", module: "care" },
       { label: "Service Templates", to: "/maintenance/templates", module: "care" },
       { label: "Attendance & Timesheets", to: "/maintenance/attendance", module: "care" },
+      { label: "Job Costing", to: "/maintenance/costing", module: "care" },
     ],
   },
   {
